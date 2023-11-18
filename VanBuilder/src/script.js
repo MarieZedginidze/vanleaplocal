@@ -14,6 +14,10 @@ const canvas = document.querySelector("canvas.webgl");
 // Scene
 const scene = new THREE.Scene();
 
+// Axis Helper
+// const axesHelper = new THREE.AxesHelper(10);
+// scene.add(axesHelper);
+
 /**
  * Lights
  */
@@ -56,7 +60,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
-camera.position.set(-8, 4, 8);
+camera.position.set(0, 8, 11);
 scene.add(camera);
 
 /**
@@ -89,13 +93,12 @@ const gltfLoader = new GLTFLoader();
 
 // Load a Room
 gltfLoader.load("/models/wallsAndFloor.glb", (gltf) => {
-  const room = gltf.scene.children[0];
+  const room = gltf.scene;
   scene.add(room);
 });
 
 // Models Array
 let models = [];
-console.log(models);
 
 // Generating and Passing Random Coordinates for Models
 function passingRandomPositions() {
@@ -129,7 +132,9 @@ const createModel = (path, positions) => {
       model: model,
     });
 
-    // Adding Transform Controls
+    // Adding Transform Controls onClick Event
+
+    model.addEventListener("click", () => {});
     const transformControls = new TransformControls(
       camera,
       renderer.domElement
@@ -138,8 +143,8 @@ const createModel = (path, positions) => {
       renderer.render(scene, camera)
     );
     transformControls.setSpace("local");
-    scene.add(transformControls);
     transformControls.attach(model);
+    scene.add(transformControls);
 
     // Checking if Dragging and Disable Orbit Controls
     transformControls.addEventListener("dragging-changed", function (event) {
