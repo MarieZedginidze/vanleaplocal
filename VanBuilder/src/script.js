@@ -14,10 +14,6 @@ const canvas = document.querySelector("canvas.webgl");
 // Scene
 const scene = new THREE.Scene();
 
-// Axis Helper
-// const axesHelper = new THREE.AxesHelper(10);
-// scene.add(axesHelper);
-
 /**
  * Lights
  */
@@ -97,9 +93,6 @@ gltfLoader.load("/models/wallsAndFloor.glb", (gltf) => {
   scene.add(room);
 });
 
-// Models Array
-let models = [];
-
 // Generating and Passing Random Coordinates for Models
 function passingRandomPositions() {
   let x = (Math.random() - 0.5) * 6;
@@ -107,7 +100,6 @@ function passingRandomPositions() {
   let z = (Math.random() - 0.5) * 7;
   return { x, y, z };
 }
-
 // Create a Fridge
 const fridgePath = "/models/fridge.glb";
 debugObject.createFridge = () => {
@@ -119,39 +111,69 @@ debugObject.createChair = () => {
   createModel(chairPath, passingRandomPositions());
 };
 
+let models = [];
 // Define Create General Model Function
 const createModel = (path, positions) => {
   // Load a Chair add it to the Scene
   gltfLoader.load(path, (gltf) => {
-    const model = gltf.scene;
+    let model = gltf.scene;
+    model.scale.set(2, 2, 2);
     model.position.copy(positions);
+    model.updateMatrixWorld();
     scene.add(model);
 
-    // Push Model to the Object's array
     models.push({
       model: model,
     });
-
-    // Adding Transform Controls onClick Event
-
-    model.addEventListener("click", () => {});
-    const transformControls = new TransformControls(
-      camera,
-      renderer.domElement
-    );
-    transformControls.addEventListener("change", () =>
-      renderer.render(scene, camera)
-    );
-    transformControls.setSpace("local");
-    transformControls.attach(model);
-    scene.add(transformControls);
-
-    // Checking if Dragging and Disable Orbit Controls
-    transformControls.addEventListener("dragging-changed", function (event) {
-      controls.enabled = !event.value;
-    });
   });
 };
+const transformControls = new TransformControls(camera, renderer.domElement);
+
+transformControls.addEventListener("change", () =>
+  renderer.render(scene, camera)
+);
+transformControls.setSpace("local");
+scene.add(transformControls);
+
+// Checking if Dragging and Disable Orbit Controls
+transformControls.addEventListener("dragging-changed", function (event) {
+  controls.enabled = !event.value;
+});
+
+/**
+ *  Raycaster
+ */
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
+/**
+ *  Track Mouse Move
+ */
+function onPointerMove(event) {
+  // calculate pointer position in normalized device coordinates (-1 to +1) for both components
+
+  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+  // update the picking ray with the camera and pointer position
+  raycaster.setFromCamera(pointer, camera);
+
+  // go through the models array
+  if (models.length) {
+    for (const modelGroup of models) {
+      // get intersecting models
+      let intersects = raycaster.intersectObjects(modelGroup.model.children);
+      // check for intersects array of models and if true, attach transform controls to the model
+      if (intersects.length > 0) {
+        for (let i = 0; i < intersects.length; i++) {
+          transformControls.attach(modelGroup.model);
+        }
+      }
+    }
+  }
+}
+
+window.addEventListener("pointermove", onPointerMove);
 
 // adding creation functions to the GUI buttons
 gui.add(debugObject, "createFridge");
@@ -160,13 +182,11 @@ gui.add(debugObject, "createChair");
 /**
  * Animate
  */
+
 const clock = new THREE.Clock();
-let previousTime = 0;
 
 const tick = () => {
   const elapsedTime = clock.getElapsedTime();
-  const deltaTime = elapsedTime - previousTime;
-  previousTime = elapsedTime;
 
   // Update controls
   controls.update();
