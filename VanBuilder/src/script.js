@@ -100,24 +100,23 @@ function passingRandomPositions() {
   let z = (Math.random() - 0.5) * 7;
   return { x, y, z };
 }
-// Create a Fridge
+// Load and Pass a Fridge Model
 const fridgePath = "/models/fridge.glb";
 debugObject.createFridge = () => {
   createModel(fridgePath, passingRandomPositions());
 };
-// Create a Fridge
+// Load and Pass a Chair Model
 const chairPath = "/models/chair.glb";
 debugObject.createChair = () => {
   createModel(chairPath, passingRandomPositions());
 };
 
 let models = [];
-// Define Create General Model Function
+// Define General Create Model Function
 const createModel = (path, positions) => {
-  // Load a Chair add it to the Scene
+  // Load a Model, Add it to the Scene and to the Models' array
   gltfLoader.load(path, (gltf) => {
     let model = gltf.scene;
-    model.scale.set(2, 2, 2);
     model.position.copy(positions);
     model.updateMatrixWorld();
     scene.add(model);
@@ -127,6 +126,8 @@ const createModel = (path, positions) => {
     });
   });
 };
+
+// Instantiate Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
 
 transformControls.addEventListener("change", () =>
@@ -135,7 +136,7 @@ transformControls.addEventListener("change", () =>
 transformControls.setSpace("local");
 scene.add(transformControls);
 
-// Checking if Dragging and Disable Orbit Controls
+// Checking if user Draggs and Disable Orbit Controls
 transformControls.addEventListener("dragging-changed", function (event) {
   controls.enabled = !event.value;
 });
@@ -147,23 +148,24 @@ const raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
 /**
- *  Track Mouse Move
+ *  Track Mouse Intersections with the Models
  */
 function onPointerMove(event) {
-  // calculate pointer position in normalized device coordinates (-1 to +1) for both components
+  // calculate Pointer Position in Normalized Device Coordinates (-1 to +1) for Both Components
 
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
   pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
-  // update the picking ray with the camera and pointer position
+  // Update the Picking Ray with the Camera and Pointer Position
   raycaster.setFromCamera(pointer, camera);
 
-  // go through the models array
+  // Go Through the Models' Array
   if (models.length) {
     for (const modelGroup of models) {
-      // get intersecting models
-      let intersects = raycaster.intersectObjects(modelGroup.model.children);
-      // check for intersects array of models and if true, attach transform controls to the model
+      // Get Intersecting Models
+      let intersects = raycaster.intersectObject(modelGroup.model);
+
+      // Check for Intersects Array Length and if it's More than 0, Attach Transform Controls to the Model
       if (intersects.length > 0) {
         for (let i = 0; i < intersects.length; i++) {
           transformControls.attach(modelGroup.model);
