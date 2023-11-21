@@ -158,21 +158,6 @@ function onPointerMove(event) {
 
   // Update the Picking Ray with the Camera and Pointer Position
   raycaster.setFromCamera(pointer, camera);
-
-  // Go Through the Models' Array
-  if (models.length) {
-    for (const modelGroup of models) {
-      // Get Intersecting Models
-      let intersects = raycaster.intersectObject(modelGroup.model);
-
-      // Check for Intersects Array Length and if it's More than 0, Attach Transform Controls to the Model
-      if (intersects.length > 0) {
-        for (let i = 0; i < intersects.length; i++) {
-          transformControls.attach(modelGroup.model);
-        }
-      }
-    }
-  }
 }
 
 window.addEventListener("pointermove", onPointerMove);
@@ -193,6 +178,20 @@ const tick = () => {
   // Update controls
   controls.update();
 
+  // Go Through the Models' Array
+  if (models.length) {
+    for (const modelGroup of models) {
+      // Get Intersecting Models
+      let modelIntersects = raycaster.intersectObject(modelGroup.model);
+
+      // Check for modelIntersects Array Length and if it's More than 0, Attach Transform Controls to the Model
+      if (modelIntersects.length) {
+        for (let i = 0; i < modelIntersects.length; i++) {
+          transformControls.attach(modelGroup.model);
+        }
+      }
+    }
+  }
   // Render
   renderer.render(scene, camera);
 
