@@ -117,6 +117,7 @@ const createModel = (path, positions) => {
   // Load a Model, Add it to the Scene and to the Models' array
   gltfLoader.load(path, (gltf) => {
     let model = gltf.scene;
+    model.scale.set(2, 2, 2);
     model.position.copy(positions);
     model.updateMatrixWorld();
     scene.add(model);
@@ -144,13 +145,13 @@ transformControls.addEventListener("dragging-changed", function (event) {
 /**
  *  Raycaster
  */
-const raycaster = new THREE.Raycaster();
+let raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
 /**
  *  Track Mouse Intersections with the Models
  */
-function onPointerMove(event) {
+function onClick(event) {
   // calculate Pointer Position in Normalized Device Coordinates (-1 to +1) for Both Components
 
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -160,7 +161,7 @@ function onPointerMove(event) {
   raycaster.setFromCamera(pointer, camera);
 }
 
-window.addEventListener("pointermove", onPointerMove);
+window.addEventListener("click", onClick);
 
 // adding creation functions to the GUI buttons
 gui.add(debugObject, "createFridge");
@@ -192,6 +193,7 @@ const tick = () => {
       }
     }
   }
+
   // Render
   renderer.render(scene, camera);
 
