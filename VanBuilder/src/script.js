@@ -3,7 +3,10 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { TransformControls } from "three/addons/controls/TransformControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import GUI from "lil-gui";
-
+import {
+  TransformControlsGizmo,
+  TransformControlsPlane,
+} from "./transformControls";
 // Debug
 const gui = new GUI();
 const debugObject = {};
@@ -88,8 +91,9 @@ controls.enableDamping = true;
 const gltfLoader = new GLTFLoader();
 
 // Load a Room
+let room = null;
 gltfLoader.load("/models/wallsAndFloor.glb", (gltf) => {
-  const room = gltf.scene;
+  room = gltf.scene;
   scene.add(room);
 });
 
@@ -117,7 +121,7 @@ const createModel = (path, positions) => {
   // Load a Model, Add it to the Scene and to the Models' array
   gltfLoader.load(path, (gltf) => {
     let model = gltf.scene;
-    model.scale.set(2, 2, 2);
+    model.scale.set(2.5, 2.5, 2.5);
     model.position.copy(positions);
     model.updateMatrixWorld();
     scene.add(model);
@@ -128,20 +132,9 @@ const createModel = (path, positions) => {
   });
 };
 
-// Instantiate Transform Controls
-const transformControls = new TransformControls(camera, renderer.domElement);
-
-transformControls.addEventListener("change", () =>
-  renderer.render(scene, camera)
-);
-transformControls.setSpace("local");
-scene.add(transformControls);
-
-// Checking if user Draggs and Disable Orbit Controls
-transformControls.addEventListener("dragging-changed", function (event) {
-  controls.enabled = !event.value;
-});
-
+// adding creation functions to the GUI buttons
+gui.add(debugObject, "createFridge");
+gui.add(debugObject, "createChair");
 /**
  *  Raycaster
  */
@@ -163,9 +156,22 @@ function onClick(event) {
 
 window.addEventListener("click", onClick);
 
-// adding creation functions to the GUI buttons
-gui.add(debugObject, "createFridge");
-gui.add(debugObject, "createChair");
+// Instantiate Transform Controls
+const transformControls = new TransformControls(camera, renderer.domElement);
+
+/**
+ * Maybe Remove it Later
+ */
+// transformControls.addEventListener("change", () =>
+//   renderer.render(scene, camera)
+// );
+// transformControls.setSpace("local");
+scene.add(transformControls);
+
+// Checking if user is Dragging and Disable Orbit Controls
+transformControls.addEventListener("dragging-changed", function (event) {
+  controls.enabled = !event.value;
+});
 
 /**
  * Animate
@@ -184,8 +190,8 @@ const tick = () => {
     for (const modelGroup of models) {
       // Get Intersecting Models
       let modelIntersects = raycaster.intersectObject(modelGroup.model);
-
       // Check for modelIntersects Array Length and if it's More than 0, Attach Transform Controls to the Model
+
       if (modelIntersects.length) {
         for (let i = 0; i < modelIntersects.length; i++) {
           transformControls.attach(modelGroup.model);
