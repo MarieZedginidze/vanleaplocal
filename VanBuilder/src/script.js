@@ -3,11 +3,7 @@ import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { TransformControls } from "three/addons/controls/TransformControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import GUI from "lil-gui";
-import {
-  TransformControlsGizmo,
-  TransformControlsPlane,
-} from "./transformControls";
-// Debug
+
 const gui = new GUI();
 const debugObject = {};
 
@@ -159,14 +155,9 @@ window.addEventListener("click", onClick);
 // Instantiate Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
 
-/**
- * Maybe Remove it Later
- */
-// transformControls.addEventListener("change", () =>
-//   renderer.render(scene, camera)
-// );
-// transformControls.setSpace("local");
-scene.add(transformControls);
+transformControls.addEventListener("change", () =>
+  renderer.render(scene, camera)
+);
 
 // Checking if user is Dragging and Disable Orbit Controls
 transformControls.addEventListener("dragging-changed", function (event) {
@@ -195,6 +186,7 @@ const tick = () => {
       if (modelIntersects.length) {
         for (let i = 0; i < modelIntersects.length; i++) {
           transformControls.attach(modelGroup.model);
+          scene.add(transformControls);
         }
       }
     }
