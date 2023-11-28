@@ -70,19 +70,8 @@ renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 /**
- *  Controls
- */
-
-// Orbit Controls
-const controls = new OrbitControls(camera, canvas);
-controls.target.set(0, 1, 0);
-controls.enableDamping = true;
-// controls.enabled = false;
-
-/**
  *  Models
  */
-
 // Instantiate GLTF Loader
 const gltfLoader = new GLTFLoader();
 
@@ -131,12 +120,30 @@ const createModel = (path, positions) => {
 // adding creation functions to the GUI buttons
 gui.add(debugObject, "createFridge");
 gui.add(debugObject, "createChair");
+
+/**
+ *  Controls
+ */
+// Orbit Controls
+const controls = new OrbitControls(camera, canvas);
+controls.target.set(0, 1, 0);
+controls.enableDamping = true;
+controls.enabled = false;
+
+// Transform Controls
+const transformControls = new TransformControls(camera, renderer.domElement);
+scene.add(transformControls);
+
+// Checking if user is Dragging and Disable Orbit Controls
+transformControls.addEventListener("dragging-changed", (event) => {
+  controls.enabled = !event.value;
+});
+
 /**
  *  Raycaster
  */
 let raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
-
 /**
  *  Track Mouse Intersections with the Models
  */
@@ -149,20 +156,7 @@ function onClick(event) {
   // Update the Picking Ray with the Camera and Pointer Position
   raycaster.setFromCamera(pointer, camera);
 }
-
-window.addEventListener("click", onClick);
-
-// Instantiate Transform Controls
-const transformControls = new TransformControls(camera, renderer.domElement);
-
-transformControls.addEventListener("change", () =>
-  renderer.render(scene, camera)
-);
-
-// Checking if user is Dragging and Disable Orbit Controls
-transformControls.addEventListener("dragging-changed", function (event) {
-  controls.enabled = !event.value;
-});
+window.addEventListener("mousedown", onClick);
 
 /**
  * Animate
@@ -182,11 +176,9 @@ const tick = () => {
       // Get Intersecting Models
       let modelIntersects = raycaster.intersectObject(modelGroup.model);
       // Check for modelIntersects Array Length and if it's More than 0, Attach Transform Controls to the Model
-
       if (modelIntersects.length) {
         for (let i = 0; i < modelIntersects.length; i++) {
           transformControls.attach(modelGroup.model);
-          scene.add(transformControls);
         }
       }
     }
