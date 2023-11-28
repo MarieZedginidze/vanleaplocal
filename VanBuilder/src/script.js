@@ -75,9 +75,8 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 const gltfLoader = new GLTFLoader();
 
 // Load a Room
-let room = null;
 gltfLoader.load("/models/wallsAndFloor.glb", (gltf) => {
-  room = gltf.scene;
+  let room = gltf.scene;
   scene.add(room);
 });
 
@@ -127,14 +126,45 @@ gui.add(debugObject, "createChair");
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 1, 0);
 controls.enableDamping = true;
-controls.enabled = false;
+// controls.enabled = false;
 
 // Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
 scene.add(transformControls);
+console.log(transformControls);
+// Get Transform Control Gizmos
+let transformGizmos = transformControls._gizmo.children[0];
+
+// Change Transform Control Modes with Shortcut Keys
+function setShotrCutKey() {
+  window.addEventListener("keydown", (event) => {
+    switch (event.keyCode) {
+      case 87: // W = translate
+        transformControls.setMode("translate");
+        break;
+      case 69: // E = rotate
+        transformControls.setMode("rotate");
+        break;
+      case 82: // R = scale
+        transformControls.setMode("scale");
+        break;
+    }
+  });
+}
+// Check if the transform controls mode equals to scale, take the second children of transformControls._gizmo
+if (transformControls.mode === "scale") {
+  transformGizmos = transformControls._gizmo.children[2];
+}
+// Check if the transform controls mode equals to rotate, take the second children of transformControls._gizmo
+if (transformControls.mode === "rotate") {
+  transformGizmos = transformControls._gizmo.children[2];
+}
 
 // Checking if user is Dragging and Disable Orbit Controls
 transformControls.addEventListener("dragging-changed", (event) => {
+  if (transformControls.mode === "translate") {
+    transformGizmos = transformControls._gizmo.children[6];
+  }
   controls.enabled = !event.value;
 });
 
@@ -171,17 +201,24 @@ const tick = () => {
 
   // Go Through the Models' Array
   if (models.length) {
+    // Get Intersecting Transform Controls
+    let transformIntersects = raycaster.intersectObject(transformGizmos);
+    console.log(transformIntersects);
+
     for (const modelGroup of models) {
       // Get Intersecting Models
       let modelIntersects = raycaster.intersectObject(modelGroup.model);
-      // Check for modelIntersects Array Length and if it's More than 0, Attach Transform Controls to the Model
-      if (modelIntersects.length) {
+
+      // Check if modelIntersects Array Length is more than 0 and transformIntersects equals to 0, Attach Transform Controls to the Model
+      if (modelIntersects.length && !transformIntersects.length) {
         for (let i = 0; i < modelIntersects.length; i++) {
           transformControls.attach(modelGroup.model);
         }
       }
     }
   }
+  // Call transform control modes changer
+  setShotrCutKey();
 
   // Render
   renderer.render(scene, camera);
