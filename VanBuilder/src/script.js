@@ -191,8 +191,9 @@ changeTranslateColors("Z", "0x00a9ff");
  */
 let raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
+
 /**
- *  Track Mouse Intersections with the Models
+ *  Track Mouse Intersections
  */
 function onClick(event) {
   // calculate Pointer Position in Normalized Device Coordinates (-1 to +1) for Both Components
