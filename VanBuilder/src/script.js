@@ -133,13 +133,7 @@ const transformControls = new TransformControls(camera, renderer.domElement);
 // Get Transform Control Gizmo
 const transformGizmo = transformControls._gizmo.gizmo.translate;
 
-console.log(transformGizmo);
 scene.add(transformControls);
-
-// Checking if user is Dragging and Disable Orbit Controls
-transformControls.addEventListener("dragging-changed", (event) => {
-  controls.enabled = !event.value;
-});
 
 /**
  *  Raycaster
@@ -150,6 +144,12 @@ const pointer = new THREE.Vector2();
 /**
  *  Track Mouse Intersections
  */
+
+// Checking if user is Dragging and Disable Orbit Controls
+transformControls.addEventListener("dragging-changed", (event) => {
+  controls.enabled = !event.value;
+});
+
 function onClick(event) {
   // calculate Pointer Position in Normalized Device Coordinates (-1 to +1) for Both Components
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
@@ -160,7 +160,7 @@ function onClick(event) {
   for (const modelGroup of models) {
     // Get Intersecting Models
     let modelIntersects = raycaster.intersectObject(modelGroup.model);
-    // Get Intersecting Transform Controls
+    // Get Intersecting Gizmos
     let transformIntersects = raycaster.intersectObject(transformGizmo);
 
     // Check if modelIntersects Array Length is more than 0 and transformIntersects equals to 0, Attach Transform Controls to the Model
