@@ -69,8 +69,25 @@ renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 /**
+ *  Controls
+ */
+// Orbit Controls
+const controls = new OrbitControls(camera, canvas);
+controls.target.set(0, 1, 0);
+controls.enableDamping = true;
+// controls.enabled = false;
+
+// Transform Controls
+const transformControls = new TransformControls(camera, renderer.domElement);
+// Get Transform Control Gizmo
+const transformGizmo = transformControls._gizmo.children[3];
+console.log(transformGizmo);
+scene.add(transformControls);
+
+/**
  *  Models
  */
+
 // Instantiate GLTF Loader
 const gltfLoader = new GLTFLoader();
 
@@ -112,28 +129,15 @@ const createModel = (path, positions) => {
     models.push({
       model: model,
     });
+    for (const model of models) {
+      transformControls.attach(model.model);
+    }
   });
 };
 
 // adding creation functions to the GUI buttons
 gui.add(debugObject, "createFridge");
 gui.add(debugObject, "createChair");
-
-/**
- *  Controls
- */
-// Orbit Controls
-const controls = new OrbitControls(camera, canvas);
-controls.target.set(0, 1, 0);
-controls.enableDamping = true;
-// controls.enabled = false;
-
-// Transform Controls
-const transformControls = new TransformControls(camera, renderer.domElement);
-// Get Transform Control Gizmo
-const transformGizmo = transformControls._gizmo.gizmo.translate;
-
-scene.add(transformControls);
 
 /**
  *  Raycaster
@@ -162,16 +166,13 @@ function onClick(event) {
     let modelIntersects = raycaster.intersectObject(modelGroup.model);
     // Get Intersecting Gizmos
     let transformIntersects = raycaster.intersectObject(transformGizmo);
-
-    // Check if modelIntersects Array Length is more than 0 and transformIntersects equals to 0, Attach Transform Controls to the Model
+    //   // Check if modelIntersects Array Length is more than 0 and transformIntersects equals to 0, Attach Transform Controls to the Model
     if (modelIntersects.length && !transformIntersects.length) {
-      for (let i = 0; i < modelIntersects.length; i++) {
-        transformControls.attach(modelGroup.model);
-      }
+      transformControls.attach(modelGroup.model);
     }
   }
 }
-
+// Fire the onClick function on mousedown event
 window.addEventListener("mousedown", onClick);
 
 /**
