@@ -130,61 +130,16 @@ controls.enableDamping = true;
 
 // Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
+// Get Transform Control Gizmo
+const transformGizmo = transformControls._gizmo.gizmo.translate;
+
+console.log(transformGizmo);
 scene.add(transformControls);
 
 // Checking if user is Dragging and Disable Orbit Controls
 transformControls.addEventListener("dragging-changed", (event) => {
   controls.enabled = !event.value;
 });
-
-/**
- * Transform Controls Customization
- */
-
-// empty geometry to replace the transformControls elements
-var invisible = new THREE.BufferGeometry();
-
-// remove transformControls translate elements
-function removeTranslateControls(name) {
-  transformControls._gizmo.gizmo.translate.getObjectByName(name).geometry =
-    invisible;
-  transformControls._gizmo.picker.translate.getObjectByName(name).geometry =
-    invisible;
-}
-// remove global translation
-removeTranslateControls("XYZ");
-
-// remove XY translation
-removeTranslateControls("XY");
-
-// remove YZ translation
-removeTranslateControls("YZ");
-
-// remove XZ translation
-removeTranslateControls("XZ");
-
-// remove transformControls rotation elements
-function removeRotateControls(name) {
-  transformControls._gizmo.gizmo.rotate.getObjectByName(name).geometry =
-    invisible;
-  transformControls._gizmo.picker.rotate.getObjectByName(name).geometry =
-    invisible;
-}
-
-// remove global rotation
-removeRotateControls("XYZE");
-// remove screen rotation
-removeRotateControls("E");
-
-// Change transformControls translate element colors
-function changeTranslateColors(name, color) {
-  transformControls._gizmo.gizmo.translate
-    .getObjectByName(name)
-    .material.color.setHex(color);
-}
-changeTranslateColors("X", "0xFF0000");
-changeTranslateColors("Y", "0x38B000");
-changeTranslateColors("Z", "0x00a9ff");
 
 /**
  *  Raycaster
@@ -202,6 +157,19 @@ function onClick(event) {
 
   // Update the Picking Ray with the Camera and Pointer Position
   raycaster.setFromCamera(pointer, camera);
+  for (const modelGroup of models) {
+    // Get Intersecting Models
+    let modelIntersects = raycaster.intersectObject(modelGroup.model);
+    // Get Intersecting Transform Controls
+    let transformIntersects = raycaster.intersectObject(transformGizmo);
+
+    // Check if modelIntersects Array Length is more than 0 and transformIntersects equals to 0, Attach Transform Controls to the Model
+    if (modelIntersects.length && !transformIntersects.length) {
+      for (let i = 0; i < modelIntersects.length; i++) {
+        transformControls.attach(modelGroup.model);
+      }
+    }
+  }
 }
 
 window.addEventListener("mousedown", onClick);
@@ -217,21 +185,6 @@ const tick = () => {
 
   // Update controls
   controls.update();
-
-  // Go Through the Models' Array
-  if (models.length) {
-    for (const modelGroup of models) {
-      // Get Intersecting Models
-      let modelIntersects = raycaster.intersectObject(modelGroup.model);
-
-      // Check if modelIntersects Array Length is more than 0 and transformIntersects equals to 0, Attach Transform Controls to the Model
-      if (modelIntersects.length) {
-        for (let i = 0; i < modelIntersects.length; i++) {
-          transformControls.attach(modelGroup.model);
-        }
-      }
-    }
-  }
 
   // Render
   renderer.render(scene, camera);
