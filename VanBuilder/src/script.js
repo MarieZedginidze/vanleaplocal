@@ -81,14 +81,11 @@ controls.enableDamping = true;
 const transformControls = new TransformControls(camera, renderer.domElement);
 // Get Transform Control Gizmo
 const transformGizmo = transformControls._gizmo.children[3];
-console.log(transformGizmo);
 scene.add(transformControls);
 
 /**
  *  Models
  */
-
-// Instantiate GLTF Loader
 const gltfLoader = new GLTFLoader();
 
 // Load a Room
@@ -124,18 +121,17 @@ const createModel = (path, positions) => {
     model.scale.set(2.5, 2.5, 2.5);
     model.position.copy(positions);
     model.updateMatrixWorld();
-    scene.add(model);
-
     models.push({
       model: model,
     });
-    for (const model of models) {
+    scene.add(model);
+
+    for (let model of models) {
       transformControls.attach(model.model);
     }
   });
 };
 
-// adding creation functions to the GUI buttons
 gui.add(debugObject, "createFridge");
 gui.add(debugObject, "createChair");
 
@@ -146,44 +142,32 @@ let raycaster = new THREE.Raycaster();
 const pointer = new THREE.Vector2();
 
 /**
- *  Track Mouse Intersections
+ *  Track Mouse Events
  */
 
-// Checking if user is Dragging and Disable Orbit Controls
-transformControls.addEventListener("dragging-changed", (event) => {
-  controls.enabled = !event.value;
-});
-
-function onClick(event) {
+function attachControls(event) {
   // calculate Pointer Position in Normalized Device Coordinates (-1 to +1) for Both Components
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
   pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
-
   // Update the Picking Ray with the Camera and Pointer Position
   raycaster.setFromCamera(pointer, camera);
+
   for (const modelGroup of models) {
-    // Get Intersecting Models
-    let modelIntersects = raycaster.intersectObject(modelGroup.model);
-    // Get Intersecting Gizmos
-    let transformIntersects = raycaster.intersectObject(transformGizmo);
-    //   // Check if modelIntersects Array Length is more than 0 and transformIntersects equals to 0, Attach Transform Controls to the Model
-    if (modelIntersects.length && !transformIntersects.length) {
+    let intersectsmodelGroup = raycaster.intersectObject(modelGroup.model);
+    if (intersectsmodelGroup.length) {
       transformControls.attach(modelGroup.model);
     }
   }
 }
-// Fire the onClick function on mousedown event
-window.addEventListener("mousedown", onClick);
 
+// check if user drags and disable orbit controls
+transformControls.addEventListener("dragging-changed", (event) => {
+  controls.enabled = !event.value;
+});
 /**
  * Animate
  */
-
-const clock = new THREE.Clock();
-
 const tick = () => {
-  const elapsedTime = clock.getElapsedTime();
-
   // Update controls
   controls.update();
 
