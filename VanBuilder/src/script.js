@@ -148,18 +148,18 @@ function attachControls(event) {
   pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
   // Update the Picking Ray with the Camera and Pointer Position
   raycaster.setFromCamera(pointer, camera);
+  console.log("added");
 
   for (const modelGroup of models) {
     let intersectsmodelGroup = raycaster.intersectObject(modelGroup.model);
     if (intersectsmodelGroup.length) {
-      console.log("set raycaster");
       transformControls.attach(modelGroup.model);
     }
   }
 }
 
 // attach transform controls on mouse down event
-window.addEventListener("mousedown", attachControls);
+canvas.addEventListener("mousedown", attachControls);
 
 // check if user drags and disable orbit controls
 transformControls.addEventListener("dragging-changed", (event) => {
