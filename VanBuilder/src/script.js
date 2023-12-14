@@ -79,8 +79,6 @@ controls.enableDamping = true;
 
 // Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
-// Get Transform Control Gizmo
-const transformGizmo = transformControls._gizmo.children[3];
 scene.add(transformControls);
 
 /**
@@ -120,7 +118,6 @@ const createModel = (path, positions) => {
     let model = gltf.scene;
     model.scale.set(2.5, 2.5, 2.5);
     model.position.copy(positions);
-    model.updateMatrixWorld();
     models.push({
       model: model,
     });
@@ -155,10 +152,14 @@ function attachControls(event) {
   for (const modelGroup of models) {
     let intersectsmodelGroup = raycaster.intersectObject(modelGroup.model);
     if (intersectsmodelGroup.length) {
+      console.log("set raycaster");
       transformControls.attach(modelGroup.model);
     }
   }
 }
+
+// attach transform controls on mouse down event
+window.addEventListener("mousedown", attachControls);
 
 // check if user drags and disable orbit controls
 transformControls.addEventListener("dragging-changed", (event) => {
