@@ -133,26 +133,21 @@ gui.add(debugObject, "createFridge");
 gui.add(debugObject, "createChair");
 
 /**
- *  Raycaster
- */
-let raycaster = new THREE.Raycaster();
-const pointer = new THREE.Vector2();
-
-/**
  *  Track Mouse Events
  */
+const pointer = new THREE.Vector2();
 
 function attachControls(event) {
+  let raycaster = new THREE.Raycaster();
   // calculate Pointer Position in Normalized Device Coordinates (-1 to +1) for Both Components
   pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
   pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
   // Update the Picking Ray with the Camera and Pointer Position
   raycaster.setFromCamera(pointer, camera);
-  console.log("added");
-
   for (const modelGroup of models) {
     let intersectsmodelGroup = raycaster.intersectObject(modelGroup.model);
-    if (intersectsmodelGroup.length) {
+    if (intersectsmodelGroup.length > 0) {
+      console.log(raycaster.ray);
       transformControls.attach(modelGroup.model);
     }
   }
