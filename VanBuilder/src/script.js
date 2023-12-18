@@ -118,9 +118,7 @@ const createModel = (path, positions) => {
     let model = gltf.scene;
     model.scale.set(2.5, 2.5, 2.5);
     model.position.copy(positions);
-    models.push({
-      model: model,
-    });
+    models.push({ model });
     scene.add(model);
 
     for (let model of models) {
@@ -154,19 +152,39 @@ function mouseup(event) {
     attachControls(mousedownCoords);
   }
 }
+
 canvas.addEventListener("mousedown", mousedown);
 canvas.addEventListener("mouseup", mouseup);
 
-// Attach Transform Controls
+// Check For Intersecting Models
 function attachControls(pointer) {
+  let modelsArray = [];
+  let firstObject;
+
   let raycaster = new THREE.Raycaster();
   // Update the Picking Ray with the Camera and Pointer Position
   raycaster.setFromCamera(pointer, camera);
+  if (models.length === 1) {
+    for (const modelGroup of models) {
+      let intersectModel = raycaster.intersectObject(modelGroup.model);
+      if (intersectModel.length) {
+        transformControls.attach(modelGroup.model);
+      } else {
+        transformControls.detach(modelGroup.model);
+      }
+    }
+  }
+  if (models.length > 1) {
+    for (var i = 0; i < models.length; i++) {
+      modelsArray.push(models[i].model);
+    }
+    let intersectModels = raycaster.intersectObjects(modelsArray);
 
-  for (const modelGroup of models) {
-    let intersectsmodel = raycaster.intersectObject(modelGroup.model);
-    if (intersectsmodel.length) {
-      transformControls.attach(modelGroup.model);
+    if (intersectModels.length) {
+      firstObject = intersectModels[0].object.parent;
+      transformControls.attach(firstObject);
+    } else {
+      transformControls.detach();
     }
   }
 }
