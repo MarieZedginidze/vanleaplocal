@@ -135,31 +135,47 @@ gui.add(debugObject, "createChair");
 /**
  *  Track Mouse Events
  */
-const pointer = new THREE.Vector2();
+let mousedownCoords = new THREE.Vector2();
+let mouseupCoords = new THREE.Vector2();
 
-function attachControls(event) {
-  let raycaster = new THREE.Raycaster();
+function mousedown(event) {
   // calculate Pointer Position in Normalized Device Coordinates (-1 to +1) for Both Components
-  pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-  pointer.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  mousedownCoords.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mousedownCoords.y = -(event.clientY / window.innerHeight) * 2 + 1;
+}
+function mouseup(event) {
+  mouseupCoords.x = (event.clientX / window.innerWidth) * 2 - 1;
+  mouseupCoords.y = -(event.clientY / window.innerHeight) * 2 + 1;
+  // Check if mousedown coordinates are different from mouse up coordinates
+  if (
+    mousedownCoords.x === mouseupCoords.x &&
+    mousedownCoords.y === mouseupCoords.y
+  ) {
+    attachControls(mousedownCoords);
+  }
+}
+canvas.addEventListener("mousedown", mousedown);
+canvas.addEventListener("mouseup", mouseup);
+
+// Attach Transform Controls
+function attachControls(pointer) {
+  let raycaster = new THREE.Raycaster();
   // Update the Picking Ray with the Camera and Pointer Position
   raycaster.setFromCamera(pointer, camera);
+
   for (const modelGroup of models) {
-    let intersectsmodelGroup = raycaster.intersectObject(modelGroup.model);
-    if (intersectsmodelGroup.length > 0) {
-      console.log(raycaster.ray);
+    let intersectsmodel = raycaster.intersectObject(modelGroup.model);
+    if (intersectsmodel.length) {
       transformControls.attach(modelGroup.model);
     }
   }
 }
 
-// attach transform controls on mouse down event
-canvas.addEventListener("mousedown", attachControls);
-
 // check if user drags and disable orbit controls
 transformControls.addEventListener("dragging-changed", (event) => {
   controls.enabled = !event.value;
 });
+
 /**
  * Animate
  */
