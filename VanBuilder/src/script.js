@@ -164,9 +164,11 @@ function attachControls(pointer) {
   let raycaster = new THREE.Raycaster();
   // Update the Picking Ray with the Camera and Pointer Position
   raycaster.setFromCamera(pointer, camera);
+  // If there is only one model, only check for a single model
   if (models.length === 1) {
     for (const modelGroup of models) {
       let intersectModel = raycaster.intersectObject(modelGroup.model);
+      // If we have intersected model, attach controls, if not- detach
       if (intersectModel.length) {
         transformControls.attach(modelGroup.model);
       } else {
@@ -174,12 +176,14 @@ function attachControls(pointer) {
       }
     }
   }
+  // If we have more than one model in the scene, push models' group directly to the modelsArray
   if (models.length > 1) {
-    for (var i = 0; i < models.length; i++) {
+    for (let i = 0; i < models.length; i++) {
       modelsArray.push(models[i].model);
     }
     let intersectModels = raycaster.intersectObjects(modelsArray);
-
+    // If we have intersected models, check for the first face and take its parent and attach controls to it,
+    // if we don't have any intersections, remove controls
     if (intersectModels.length) {
       firstObject = intersectModels[0].object.parent;
       transformControls.attach(firstObject);
