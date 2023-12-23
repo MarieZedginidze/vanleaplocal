@@ -75,11 +75,12 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 1, 0);
 controls.enableDamping = true;
-// controls.enabled = false;
+controls.enabled = false;
 
 // Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
 scene.add(transformControls);
+// Customize Transform Controls
 
 /**
  *  Models
@@ -93,21 +94,21 @@ gltfLoader.load("/models/wallsAndFloor.glb", (gltf) => {
 });
 
 // Generating and Passing Random Coordinates for Models
-function passingRandomPositions() {
-  let x = (Math.random() - 0.5) * 6;
+function passingPositions() {
+  let x = -1;
   let y = 1;
-  let z = (Math.random() - 0.5) * 7;
+  let z = 0;
   return { x, y, z };
 }
 // Load and Pass a Fridge Model
 const fridgePath = "/models/fridge.glb";
 debugObject.createFridge = () => {
-  createModel(fridgePath, passingRandomPositions());
+  createModel(fridgePath, passingPositions());
 };
 // Load and Pass a Chair Model
 const chairPath = "/models/chair.glb";
 debugObject.createChair = () => {
-  createModel(chairPath, passingRandomPositions());
+  createModel(chairPath, passingPositions());
 };
 
 let models = [];
@@ -118,11 +119,14 @@ const createModel = (path, positions) => {
     let model = gltf.scene;
     model.scale.set(2.5, 2.5, 2.5);
     model.position.copy(positions);
+    // Attach Transform Controls on Models
+
     models.push({ model });
     scene.add(model);
 
     for (let model of models) {
-      transformControls.attach(model.model);
+      transformControls.attach(model.model.children[1]);
+      console.log(model.model.children[0]);
     }
   });
 };
@@ -156,7 +160,29 @@ function mouseup(event) {
 canvas.addEventListener("mousedown", mousedown);
 canvas.addEventListener("mouseup", mouseup);
 
-// Check For Intersecting Models
+/**
+ * Track Key Down Events
+ */
+// Change Transform Control Modes with Shortcut Keys
+function setShotrCutKey(event) {
+  switch (event.keyCode) {
+    case 87: // W = translate
+      transformControls.setMode("translate");
+      break;
+    case 69: // E = rotate
+      transformControls.setMode("rotate");
+      break;
+    case 82: // R = scale
+      transformControls.setMode("scale");
+      break;
+  }
+}
+
+window.addEventListener("keydown", setShotrCutKey, true);
+
+/*
+ * Check For Intersecting Models and Toggle Controls
+ */
 function attachControls(pointer) {
   let modelsArray = [];
   let firstObject;
@@ -168,11 +194,13 @@ function attachControls(pointer) {
   if (models.length === 1) {
     for (const modelGroup of models) {
       let intersectModel = raycaster.intersectObject(modelGroup.model);
+
       // If we have intersected model, attach controls, if not- detach
       if (intersectModel.length) {
-        transformControls.attach(modelGroup.model);
+        let intersectedObject = intersectModel[0].object.parent;
+        transformControls.attach(intersectedObject);
       } else {
-        transformControls.detach(modelGroup.model);
+        transformControls.detach();
       }
     }
   }
