@@ -75,7 +75,7 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 1, 0);
 controls.enableDamping = true;
-controls.enabled = false;
+// controls.enabled = false;
 
 // Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
@@ -96,7 +96,7 @@ gltfLoader.load("/models/wallsAndFloor.glb", (gltf) => {
 // Generating and Passing Random Coordinates for Models
 function passingPositions() {
   let x = -1;
-  let y = 1;
+  let y = 2;
   let z = 0;
   return { x, y, z };
 }
@@ -110,29 +110,29 @@ const chairPath = "/models/chair.glb";
 debugObject.createChair = () => {
   createModel(chairPath, passingPositions());
 };
+// Load and Pass a Cupboard Model
+const cupboardPath = "/models/cupboard.glb";
+debugObject.cupboard = () => {
+  createModel(cupboardPath, passingPositions());
+};
 
 let models = [];
 // Define General Create Model Function
 const createModel = (path, positions) => {
   // Load a Model, Add it to the Scene and to the Models' array
   gltfLoader.load(path, (gltf) => {
-    let model = gltf.scene;
+    let model = gltf.scene.children[0];
     model.scale.set(2.5, 2.5, 2.5);
     model.position.copy(positions);
-    // Attach Transform Controls on Models
-
+    transformControls.attach(model);
+    console.log(model);
     models.push({ model });
     scene.add(model);
-
-    for (let model of models) {
-      transformControls.attach(model.model.children[1]);
-      console.log(model.model.children[0]);
-    }
   });
 };
-
 gui.add(debugObject, "createFridge");
 gui.add(debugObject, "createChair");
+gui.add(debugObject, "cupboard");
 
 /**
  *  Track Mouse Events
@@ -145,6 +145,7 @@ function mousedown(event) {
   mousedownCoords.x = (event.clientX / window.innerWidth) * 2 - 1;
   mousedownCoords.y = -(event.clientY / window.innerHeight) * 2 + 1;
 }
+
 function mouseup(event) {
   mouseupCoords.x = (event.clientX / window.innerWidth) * 2 - 1;
   mouseupCoords.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -181,7 +182,7 @@ function setShotrCutKey(event) {
 window.addEventListener("keydown", setShotrCutKey, true);
 
 /*
- * Check For Intersecting Models and Toggle Controls
+ * Check For Intersecting Models and Toggle Transform Controls
  */
 function attachControls(pointer) {
   let modelsArray = [];
