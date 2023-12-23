@@ -80,16 +80,16 @@ controls.enableDamping = true;
 // Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
 scene.add(transformControls);
-// Customize Transform Controls
 
 /**
  *  Models
  */
 const gltfLoader = new GLTFLoader();
 
+let room;
 // Load a Room
 gltfLoader.load("/models/wallsAndFloor.glb", (gltf) => {
-  let room = gltf.scene;
+  room = gltf.scene;
   scene.add(room);
 });
 
@@ -102,13 +102,13 @@ function passingPositions() {
 }
 // Load and Pass a Fridge Model
 const fridgePath = "/models/fridge.glb";
-debugObject.createFridge = () => {
+debugObject.fridge = () => {
   createModel(fridgePath, passingPositions());
 };
-// Load and Pass a Chair Model
-const chairPath = "/models/chair.glb";
-debugObject.createChair = () => {
-  createModel(chairPath, passingPositions());
+// Load and Pass a Tap Model
+const tapPath = "/models/waterTap.glb";
+debugObject.tap = () => {
+  createModel(tapPath, passingPositions());
 };
 // Load and Pass a Cupboard Model
 const cupboardPath = "/models/cupboard.glb";
@@ -122,16 +122,15 @@ const createModel = (path, positions) => {
   // Load a Model, Add it to the Scene and to the Models' array
   gltfLoader.load(path, (gltf) => {
     let model = gltf.scene.children[0];
-    model.scale.set(2.5, 2.5, 2.5);
+    model.scale.set(4, 4, 4);
     model.position.copy(positions);
     transformControls.attach(model);
-    console.log(model);
     models.push({ model });
     scene.add(model);
   });
 };
-gui.add(debugObject, "createFridge");
-gui.add(debugObject, "createChair");
+gui.add(debugObject, "fridge");
+gui.add(debugObject, "tap");
 gui.add(debugObject, "cupboard");
 
 /**
@@ -184,11 +183,12 @@ window.addEventListener("keydown", setShotrCutKey, true);
 /*
  * Check For Intersecting Models and Toggle Transform Controls
  */
+let raycaster = new THREE.Raycaster();
+
 function attachControls(pointer) {
   let modelsArray = [];
   let firstObject;
 
-  let raycaster = new THREE.Raycaster();
   // Update the Picking Ray with the Camera and Pointer Position
   raycaster.setFromCamera(pointer, camera);
   // If there is only one model, only check for a single model
@@ -236,7 +236,11 @@ const tick = () => {
 
   // Render
   renderer.render(scene, camera);
-
+  // Prevent Objects Leaving the Room
+  if (room) {
+    let intersectsRoom = raycaster.intersectObjects(room.children[0]);
+    console.log(intersectsRoom);
+  }
   // Call tick again on the next frame
   window.requestAnimationFrame(tick);
 };
