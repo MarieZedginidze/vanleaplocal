@@ -100,13 +100,9 @@ function passingPositions() {
   let z = 0;
   return { x, y, z };
 }
-// Load and Pass a Fridge Model
-const fridgePath = "/models/fridge.glb";
-debugObject.fridge = () => {
-  createModel(fridgePath, passingPositions());
-};
+
 // Load and Pass a Tap Model
-const tapPath = "/models/waterTap.glb";
+const tapPath = "/models/tap.glb";
 debugObject.tap = () => {
   createModel(tapPath, passingPositions());
 };
@@ -129,7 +125,6 @@ const createModel = (path, positions) => {
     scene.add(model);
   });
 };
-gui.add(debugObject, "fridge");
 gui.add(debugObject, "tap");
 gui.add(debugObject, "cupboard");
 
@@ -157,8 +152,20 @@ function mouseup(event) {
   }
 }
 
+function detectCollision() {
+  let raycaster = new THREE.Raycaster();
+  let intersectsRoom = raycaster.intersectObject(room);
+
+  if (models.length) {
+    for (const modelGroup of models) {
+      raycaster.set(modelGroup.model, room);
+      let intersectsModel = raycaster.intersectObject(modelGroup.model);
+    }
+  }
+}
 canvas.addEventListener("mousedown", mousedown);
 canvas.addEventListener("mouseup", mouseup);
+transformControls.addEventListener("change", detectCollision);
 
 /**
  * Track Key Down Events
@@ -237,10 +244,7 @@ const tick = () => {
   // Render
   renderer.render(scene, camera);
   // Prevent Objects Leaving the Room
-  if (room) {
-    let intersectsRoom = raycaster.intersectObjects(room.children[0]);
-    console.log(intersectsRoom);
-  }
+
   // Call tick again on the next frame
   window.requestAnimationFrame(tick);
 };
