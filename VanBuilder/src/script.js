@@ -93,10 +93,10 @@ gltfLoader.load("/models/wallsAndFloor.glb", (gltf) => {
   scene.add(room);
 });
 
-// Generating and Passing Random Coordinates for Models
+// Generating and Passing Coordinates for Models
 function passingPositions() {
   let x = -1;
-  let y = 2;
+  let y = 2.5;
   let z = 0;
   return { x, y, z };
 }
@@ -125,8 +125,8 @@ const createModel = (path, positions) => {
     scene.add(model);
   });
 };
-gui.add(debugObject, "tap");
-gui.add(debugObject, "cupboard");
+gui.add(debugObject, "tap").name("create a tap");
+gui.add(debugObject, "cupboard").name("create a cupboard");
 
 /**
  *  Track Mouse Events
@@ -152,20 +152,8 @@ function mouseup(event) {
   }
 }
 
-function detectCollision() {
-  let raycaster = new THREE.Raycaster();
-  let intersectsRoom = raycaster.intersectObject(room);
-
-  if (models.length) {
-    for (const modelGroup of models) {
-      raycaster.set(modelGroup.model, room);
-      let intersectsModel = raycaster.intersectObject(modelGroup.model);
-    }
-  }
-}
 canvas.addEventListener("mousedown", mousedown);
 canvas.addEventListener("mouseup", mouseup);
-transformControls.addEventListener("change", detectCollision);
 
 /**
  * Track Key Down Events
@@ -228,6 +216,21 @@ function attachControls(pointer) {
     }
   }
 }
+
+// Restrict Translation of an Object
+function restrictingMovement() {
+  if (models.length > 0) {
+    if (transformControls.mode === "translate") {
+      for (const modelGroup of models) {
+        const min = new THREE.Vector3(-3, 2.5, -3);
+        const max = new THREE.Vector3(3, 6, 6);
+        modelGroup.model.position.clamp(min, max);
+      }
+    }
+  }
+}
+
+transformControls.addEventListener("change", restrictingMovement);
 
 // check if user drags and disable orbit controls
 transformControls.addEventListener("dragging-changed", (event) => {
