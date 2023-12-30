@@ -54,7 +54,7 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
-camera.position.set(0, 8, 11);
+camera.position.set(0, 6, 11);
 scene.add(camera);
 
 /**
@@ -75,6 +75,8 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 1, 0);
 controls.enableDamping = true;
+controls.minDistance = 8;
+controls.maxDistance = 25;
 // controls.enabled = false;
 
 // Transform Controls
@@ -219,12 +221,21 @@ function attachControls(pointer) {
 
 // Restrict Translation of an Object
 function restrictingMovement() {
+  let sink = "Sink_faucet_";
+  let cupboard = "Cupboard_var_27";
+
   if (models.length > 0) {
     if (transformControls.mode === "translate") {
+      let min = new THREE.Vector3(-2.8, 2.5, -3.4);
+      let max = new THREE.Vector3(3, 6, 6);
       for (const modelGroup of models) {
-        const min = new THREE.Vector3(-3, 2.5, -3);
-        const max = new THREE.Vector3(3, 6, 6);
-        modelGroup.model.position.clamp(min, max);
+        if (modelGroup.model.name === cupboard) {
+          modelGroup.model.position.clamp(min, max);
+        } else if (modelGroup.model.name === sink) {
+          min = new THREE.Vector3(-4, 2.5, -3);
+
+          modelGroup.model.position.clamp(min, max);
+        }
       }
     }
   }
