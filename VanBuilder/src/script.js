@@ -75,8 +75,14 @@ renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 const controls = new OrbitControls(camera, canvas);
 controls.target.set(0, 1, 0);
 controls.enableDamping = true;
+
 controls.minDistance = 8;
 controls.maxDistance = 25;
+
+// Changed how far you can orbit vertically, upper and lower limits.
+controls.minPolarAngle = 0; // radians
+controls.maxPolarAngle = 1.3; // radians
+
 // controls.enabled = false;
 
 // Transform Controls
@@ -226,14 +232,14 @@ function restrictingMovement() {
 
   if (models.length > 0) {
     if (transformControls.mode === "translate") {
-      let min = new THREE.Vector3(-2.8, 2.5, -3.4);
-      let max = new THREE.Vector3(3, 6, 6);
       for (const modelGroup of models) {
         if (modelGroup.model.name === cupboard) {
+          let min = new THREE.Vector3(-2.8, 2.5, -3.4);
+          let max = new THREE.Vector3(3, 6, 6);
           modelGroup.model.position.clamp(min, max);
         } else if (modelGroup.model.name === sink) {
-          min = new THREE.Vector3(-4, 2.5, -3);
-
+          let min = new THREE.Vector3(-4, 2.5, -3);
+          let max = new THREE.Vector3(3, 6, 6);
           modelGroup.model.position.clamp(min, max);
         }
       }
@@ -248,6 +254,10 @@ transformControls.addEventListener("dragging-changed", (event) => {
   controls.enabled = !event.value;
 });
 
+controls.addEventListener("dragging-changed", (event) => {
+  // Restricting panning movement
+});
+
 /**
  * Animate
  */
@@ -257,7 +267,6 @@ const tick = () => {
 
   // Render
   renderer.render(scene, camera);
-  // Prevent Objects Leaving the Room
 
   // Call tick again on the next frame
   window.requestAnimationFrame(tick);
