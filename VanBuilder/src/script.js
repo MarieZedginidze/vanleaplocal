@@ -69,27 +69,6 @@ renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 /**
- *  Controls
- */
-// Orbit Controls
-const controls = new OrbitControls(camera, canvas);
-controls.target.set(0, 1, 0);
-controls.enableDamping = true;
-
-controls.minDistance = 8;
-controls.maxDistance = 25;
-
-// Changed how far you can orbit vertically, upper and lower limits.
-controls.minPolarAngle = 0; // radians
-controls.maxPolarAngle = 1.3; // radians
-
-// controls.enabled = false;
-
-// Transform Controls
-const transformControls = new TransformControls(camera, renderer.domElement);
-scene.add(transformControls);
-
-/**
  *  Models
  */
 const gltfLoader = new GLTFLoader();
@@ -135,6 +114,38 @@ const createModel = (path, positions) => {
 };
 gui.add(debugObject, "tap").name("create a tap");
 gui.add(debugObject, "cupboard").name("create a cupboard");
+
+/**
+ *  Controls
+ */
+// Orbit Controls
+const controls = new OrbitControls(camera, canvas);
+controls.target.set(0, 1, 0);
+controls.enableDamping = true;
+
+controls.minDistance = 8;
+controls.maxDistance = 25;
+
+// Changed how far you can orbit vertically, upper and lower limits.
+controls.minPolarAngle = 0; // radians
+controls.maxPolarAngle = 1.3; // radians
+
+// Changed controls zoom speed
+controls.zoomSpeed = 0.9;
+
+// Changed rotation speed
+controls.rotateSpeed = 0.5;
+
+// Restricted pan movement
+controls.minTargetRadius = -3;
+controls.maxTargetRadius = 3;
+controls.update();
+
+// controls.enabled = false;
+
+// Transform Controls
+const transformControls = new TransformControls(camera, renderer.domElement);
+scene.add(transformControls);
 
 /**
  *  Track Mouse Events
@@ -252,10 +263,6 @@ transformControls.addEventListener("change", restrictingMovement);
 // check if user drags and disable orbit controls
 transformControls.addEventListener("dragging-changed", (event) => {
   controls.enabled = !event.value;
-});
-
-controls.addEventListener("dragging-changed", (event) => {
-  // Restricting panning movement
 });
 
 /**
