@@ -49,12 +49,12 @@ window.addEventListener("resize", () => {
  */
 // Base camera
 const camera = new THREE.PerspectiveCamera(
-  75,
+  45,
   sizes.width / sizes.height,
   0.1,
   100
 );
-camera.position.set(0, 6, 11);
+camera.position.set(0, 0, 0);
 scene.add(camera);
 
 /**
@@ -69,13 +69,34 @@ renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
 /**
+ *  Controls
+ */
+// Orbit Controls
+const controls = new OrbitControls(camera, canvas);
+controls.target.set(0, 1, 0);
+controls.enableDamping = true;
+
+controls.minDistance = 8;
+controls.maxDistance = 25;
+
+// Changed how far you can orbit vertically, upper and lower limits.
+controls.minPolarAngle = 0; // radians
+controls.maxPolarAngle = 1.3; // radians
+
+// controls.enabled = false;
+
+// Transform Controls
+const transformControls = new TransformControls(camera, renderer.domElement);
+scene.add(transformControls);
+
+/**
  *  Models
  */
 const gltfLoader = new GLTFLoader();
 
 let room;
 // Load a Room
-gltfLoader.load("/models/wallsAndFloor.glb", (gltf) => {
+gltfLoader.load("/models/room.glb", (gltf) => {
   room = gltf.scene;
   scene.add(room);
 });
@@ -83,7 +104,7 @@ gltfLoader.load("/models/wallsAndFloor.glb", (gltf) => {
 // Generating and Passing Coordinates for Models
 function passingPositions() {
   let x = -1;
-  let y = 2.5;
+  let y = 0.5;
   let z = 0;
   return { x, y, z };
 }
@@ -105,7 +126,6 @@ const createModel = (path, positions) => {
   // Load a Model, Add it to the Scene and to the Models' array
   gltfLoader.load(path, (gltf) => {
     let model = gltf.scene.children[0];
-    model.scale.set(4, 4, 4);
     model.position.copy(positions);
     transformControls.attach(model);
     models.push({ model });
@@ -114,38 +134,6 @@ const createModel = (path, positions) => {
 };
 gui.add(debugObject, "tap").name("create a tap");
 gui.add(debugObject, "cupboard").name("create a cupboard");
-
-/**
- *  Controls
- */
-// Orbit Controls
-const controls = new OrbitControls(camera, canvas);
-controls.target.set(0, 1, 0);
-controls.enableDamping = true;
-
-controls.minDistance = 8;
-controls.maxDistance = 25;
-
-// Changed how far you can orbit vertically, upper and lower limits.
-controls.minPolarAngle = 0; // radians
-controls.maxPolarAngle = 1.3; // radians
-
-// Changed controls zoom speed
-controls.zoomSpeed = 0.9;
-
-// Changed rotation speed
-controls.rotateSpeed = 0.5;
-
-// Restricted pan movement
-controls.minTargetRadius = -3;
-controls.maxTargetRadius = 3;
-controls.update();
-
-// controls.enabled = false;
-
-// Transform Controls
-const transformControls = new TransformControls(camera, renderer.domElement);
-scene.add(transformControls);
 
 /**
  *  Track Mouse Events
@@ -237,32 +225,17 @@ function attachControls(pointer) {
 }
 
 // Restrict Translation of an Object
-function restrictingMovement() {
-  let sink = "Sink_faucet_";
-  let cupboard = "Cupboard_var_27";
-
-  if (models.length > 0) {
-    if (transformControls.mode === "translate") {
-      for (const modelGroup of models) {
-        if (modelGroup.model.name === cupboard) {
-          let min = new THREE.Vector3(-2.8, 2.5, -3.4);
-          let max = new THREE.Vector3(3, 6, 6);
-          modelGroup.model.position.clamp(min, max);
-        } else if (modelGroup.model.name === sink) {
-          let min = new THREE.Vector3(-4, 2.5, -3);
-          let max = new THREE.Vector3(3, 6, 6);
-          modelGroup.model.position.clamp(min, max);
-        }
-      }
-    }
-  }
-}
+function restrictingMovement() {}
 
 transformControls.addEventListener("change", restrictingMovement);
 
 // check if user drags and disable orbit controls
 transformControls.addEventListener("dragging-changed", (event) => {
   controls.enabled = !event.value;
+});
+
+controls.addEventListener("dragging-changed", (event) => {
+  // Restricting panning movement
 });
 
 /**
