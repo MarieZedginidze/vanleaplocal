@@ -18,7 +18,7 @@ let scene = new THREE.Scene();
 const ambientLight = new THREE.AmbientLight(0xffffff);
 scene.add(ambientLight);
 
-const light = new THREE.DirectionalLight(0xffffff, 7);
+const light = new THREE.DirectionalLight(0xffffff, 1);
 light.position.set(1, 1, 1);
 scene.add(light);
 
@@ -93,18 +93,41 @@ scene.add(transformControls);
 const gltfLoader = new GLTFLoader();
 
 let room;
+let backPlane;
+let leftFloorPlane;
+let rightFloorPlane;
+let truckPlane;
+let rightPlane;
+let leftPlane;
+let topPlane;
 // Load a Room
-gltfLoader.load("/models/room.glb", (gltf) => {
+gltfLoader.load("models/car/test.glb", (gltf) => {
   room = gltf.scene;
+  backPlane = room.getObjectByName("backPlane");
+  leftFloorPlane = room.getObjectByName("leftFloorPlane");
+  rightFloorPlane = room.getObjectByName("rightFloorPlane");
+  truckPlane = room.getObjectByName("truckPlane");
+  rightPlane = room.getObjectByName("rightPlane");
+  leftPlane = room.getObjectByName("leftPlane");
+  topPlane = room.getObjectByName("topPlane");
+
+  backPlane.visible = false;
+  leftFloorPlane.visible = false;
+  rightFloorPlane.visible = false;
+  truckPlane.visible = false;
+  rightPlane.visible = false;
+  leftPlane.visible = false;
+  topPlane.visible = false;
+
   scene.position.set(0, 0, 0);
   scene.add(room);
 });
 
 // Generating and Passing Coordinates for Models
 function passingPositions() {
-  let x = -1;
-  let y = 0.5;
-  let z = 0;
+  let x = 1.5;
+  let y = 1;
+  let z = 1;
   return { x, y, z };
 }
 
@@ -224,7 +247,23 @@ function attachControls(pointer) {
 }
 
 // Restrict Translation of an Object
-function restrictingMovement() {}
+function restrictingMovement() {
+  let backPlanebbox = new THREE.Box3().setFromObject(backPlane);
+  let leftFloorPlanebbox = new THREE.Box3().setFromObject(leftFloorPlane);
+  let rightFloorPlanebbox = new THREE.Box3().setFromObject(rightFloorPlane);
+  let truckPlanebbox = new THREE.Box3().setFromObject(truckPlane);
+  let rightPlanebbox = new THREE.Box3().setFromObject(rightPlane);
+  let leftPlanebbox = new THREE.Box3().setFromObject(leftPlane);
+  let topPlanebbox = new THREE.Box3().setFromObject(topPlane);
+  for (const modelGroup of models) {
+    let model = modelGroup.model;
+    let modelBoundingBox = new THREE.Box3().setFromObject(model);
+    let modelSize = modelBoundingBox.getSize(new THREE.Vector3());
+    if (modelBoundingBox.max.x > backPlanebbox.max.x) {
+      model.position.x = backPlane.position.x - modelSize.x / 2;
+    }
+  }
+}
 
 transformControls.addEventListener("change", restrictingMovement);
 
@@ -247,6 +286,8 @@ function saveScene() {
 }
 // Loading the Scene
 function loadScene() {
+  scene.updateMatrixWorld();
+
   if (document.readyState === "complete") {
     let json = JSON.parse(localStorage.savedScene);
     console.log(json);
