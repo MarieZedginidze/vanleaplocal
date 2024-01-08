@@ -11,15 +11,14 @@ const debugObject = {};
 const canvas = document.querySelector("canvas.webgl");
 
 // Scene
-const scene = new THREE.Scene();
-
+let scene = new THREE.Scene();
 /**
  * Lights
  */
 const ambientLight = new THREE.AmbientLight(0xffffff);
 scene.add(ambientLight);
 
-const light = new THREE.DirectionalLight(0xffffff, 4);
+const light = new THREE.DirectionalLight(0xffffff, 7);
 light.position.set(1, 1, 1);
 scene.add(light);
 
@@ -54,7 +53,6 @@ const camera = new THREE.PerspectiveCamera(
   0.1,
   100
 );
-camera.position.set(0, 0, 0);
 scene.add(camera);
 
 /**
@@ -98,6 +96,7 @@ let room;
 // Load a Room
 gltfLoader.load("/models/room.glb", (gltf) => {
   room = gltf.scene;
+  scene.position.set(0, 0, 0);
   scene.add(room);
 });
 
@@ -110,9 +109,9 @@ function passingPositions() {
 }
 
 // Load and Pass a Tap Model
-const tapPath = "/models/tap.glb";
-debugObject.tap = () => {
-  createModel(tapPath, passingPositions());
+const suzannePath = "/models/suzanne.glb";
+debugObject.suzanne = () => {
+  createModel(suzannePath, passingPositions());
 };
 // Load and Pass a Cupboard Model
 const cupboardPath = "/models/cupboard.glb";
@@ -125,14 +124,14 @@ let models = [];
 const createModel = (path, positions) => {
   // Load a Model, Add it to the Scene and to the Models' array
   gltfLoader.load(path, (gltf) => {
-    let model = gltf.scene.children[0];
+    let model = gltf.scene;
     model.position.copy(positions);
     transformControls.attach(model);
     models.push({ model });
     scene.add(model);
   });
 };
-gui.add(debugObject, "tap").name("create a tap");
+gui.add(debugObject, "suzanne").name("create a suzanne");
 gui.add(debugObject, "cupboard").name("create a cupboard");
 
 /**
@@ -237,6 +236,42 @@ transformControls.addEventListener("dragging-changed", (event) => {
 controls.addEventListener("dragging-changed", (event) => {
   // Restricting panning movement
 });
+
+/**
+ * Saving and Loading the Scene
+ */
+// Saving the Scene
+function saveScene() {
+  let result = scene.toJSON();
+  localStorage.savedScene = JSON.stringify(result);
+}
+// Loading the Scene
+function loadScene() {
+  if (document.readyState === "complete") {
+    let json = JSON.parse(localStorage.savedScene);
+    console.log(json);
+    let loader = new THREE.ObjectLoader();
+    loader.parse(json, function (e) {
+      // Set the Scene as the loaded Object
+      if (json !== undefined) scene = e;
+    });
+  } else {
+    setTimeout(checkLoaded, 10);
+  }
+}
+// Reseting the Scene
+function resetScene() {
+  localStorage.clear();
+  location.reload();
+}
+
+let savingBtn = document.getElementById("save-btn");
+savingBtn.addEventListener("click", saveScene);
+
+window.addEventListener("load", loadScene);
+
+let resetBtn = document.getElementById("reset-btn");
+resetBtn.addEventListener("click", resetScene);
 
 /**
  * Animate
