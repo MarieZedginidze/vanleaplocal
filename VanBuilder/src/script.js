@@ -79,7 +79,7 @@ controls.maxDistance = 20;
 
 // Changed how far you can orbit vertically, upper and lower limits.
 controls.minPolarAngle = 0; // radians
-controls.maxPolarAngle = 1.3; // radians
+controls.maxPolarAngle = 1.9; // radians
 
 // controls.enabled = false;
 
@@ -92,7 +92,7 @@ scene.add(transformControls);
  */
 const gltfLoader = new GLTFLoader();
 
-let car;
+let room;
 let backPlane;
 let floorPlane;
 let truckPlane;
@@ -105,14 +105,14 @@ let truckPlanebbox;
 let sidePlanebbox;
 let topPlanebbox;
 
-// Load a car
-gltfLoader.load("models/test-car.glb", (gltf) => {
-  car = gltf.scene;
-  backPlane = car.getObjectByName("backPlane");
-  floorPlane = car.getObjectByName("floorPlane");
-  truckPlane = car.getObjectByName("truckPlane");
-  sidePlane = car.getObjectByName("sidePlane");
-  topPlane = car.getObjectByName("topPlane");
+// Load a Room
+gltfLoader.load("models/car/test.glb", (gltf) => {
+  room = gltf.scene;
+  backPlane = room.getObjectByName("backPlane");
+  floorPlane = room.getObjectByName("floorPlane");
+  truckPlane = room.getObjectByName("truckPlane");
+  sidePlane = room.getObjectByName("sidePlane");
+  topPlane = room.getObjectByName("topPlane");
 
   backPlane.visible = false;
   floorPlane.visible = false;
@@ -121,7 +121,7 @@ gltfLoader.load("models/test-car.glb", (gltf) => {
   topPlane.visible = false;
 
   scene.position.set(0, 0, 0);
-  scene.add(car);
+  scene.add(room);
 });
 
 // Generating and Passing Coordinates for Models
@@ -256,7 +256,7 @@ function restrictingMovement() {
   topPlanebbox = new THREE.Box3().setFromObject(topPlane);
   for (const modelGroup of models) {
     let model = modelGroup.model;
-    let van = car.children[0];
+    let van = room.children[0];
     let vanBoundingBox = new THREE.Box3().setFromObject(van);
     let modelBoundingBox = new THREE.Box3().setFromObject(model);
     let modelSize = modelBoundingBox.getSize(new THREE.Vector3());
@@ -318,6 +318,8 @@ function saveScene() {
 }
 // Loading the Scene
 function loadScene() {
+  scene.updateMatrixWorld();
+
   if (document.readyState === "complete") {
     let json = JSON.parse(localStorage.savedScene);
     console.log(json);
