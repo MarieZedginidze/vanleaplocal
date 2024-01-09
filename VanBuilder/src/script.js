@@ -106,7 +106,7 @@ let sidePlanebbox;
 let topPlanebbox;
 
 // Load a Room
-gltfLoader.load("models/car/test.glb", (gltf) => {
+gltfLoader.load("models/test-car.glb", (gltf) => {
   room = gltf.scene;
   backPlane = room.getObjectByName("backPlane");
   floorPlane = room.getObjectByName("floorPlane");
@@ -132,11 +132,6 @@ function passingPositions() {
   return { x, y, z };
 }
 
-// Load and Pass a Tap Model
-const suzannePath = "/models/suzanne.glb";
-debugObject.suzanne = () => {
-  createModel(suzannePath, passingPositions());
-};
 // Load and Pass a Cupboard Model
 const cupboardPath = "/models/cupboard.glb";
 debugObject.cupboard = () => {
@@ -155,7 +150,6 @@ const createModel = (path, positions) => {
     scene.add(model);
   });
 };
-gui.add(debugObject, "suzanne").name("create a suzanne");
 gui.add(debugObject, "cupboard").name("create a cupboard");
 
 /**
