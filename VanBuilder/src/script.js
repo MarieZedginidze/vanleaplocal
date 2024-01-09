@@ -264,13 +264,13 @@ function restrictingMovement() {
     // restricting resizing
     if (transformControls.mode === "scale") {
       if (model.scale.x > vanBoundingBox.max.x) {
-        model.scale.x = vanBoundingBox.max.x - 0.3;
+        model.scale.x = vanBoundingBox.max.x;
       }
       if (model.scale.y > vanBoundingBox.max.y) {
         model.scale.y = vanBoundingBox.max.y - 0.3;
       }
       if (modelBoundingBox.max.z > vanBoundingBox.max.z) {
-        model.scale.z = vanBoundingBox.max.z - 0.3;
+        model.scale.z = vanBoundingBox.max.z;
       }
     }
     // restricting movement on the x axis with black plane
