@@ -75,11 +75,11 @@ controls.target.set(0, 1, 0);
 controls.enableDamping = true;
 
 controls.minDistance = 8;
-controls.maxDistance = 25;
+controls.maxDistance = 20;
 
 // Changed how far you can orbit vertically, upper and lower limits.
 controls.minPolarAngle = 0; // radians
-controls.maxPolarAngle = 1.3; // radians
+controls.maxPolarAngle = 1.9; // radians
 
 // controls.enabled = false;
 
@@ -94,29 +94,30 @@ const gltfLoader = new GLTFLoader();
 
 let room;
 let backPlane;
-let leftFloorPlane;
-let rightFloorPlane;
+let floorPlane;
 let truckPlane;
-let rightPlane;
-let leftPlane;
+let sidePlane;
 let topPlane;
+
+let backPlanebbox;
+let floorPlanebbox;
+let truckPlanebbox;
+let sidePlanebbox;
+let topPlanebbox;
+
 // Load a Room
 gltfLoader.load("models/car/test.glb", (gltf) => {
   room = gltf.scene;
   backPlane = room.getObjectByName("backPlane");
-  leftFloorPlane = room.getObjectByName("leftFloorPlane");
-  rightFloorPlane = room.getObjectByName("rightFloorPlane");
+  floorPlane = room.getObjectByName("floorPlane");
   truckPlane = room.getObjectByName("truckPlane");
-  rightPlane = room.getObjectByName("rightPlane");
-  leftPlane = room.getObjectByName("leftPlane");
+  sidePlane = room.getObjectByName("sidePlane");
   topPlane = room.getObjectByName("topPlane");
 
   backPlane.visible = false;
-  leftFloorPlane.visible = false;
-  rightFloorPlane.visible = false;
+  floorPlane.visible = false;
   truckPlane.visible = false;
-  rightPlane.visible = false;
-  leftPlane.visible = false;
+  sidePlane.visible = false;
   topPlane.visible = false;
 
   scene.position.set(0, 0, 0);
@@ -126,7 +127,7 @@ gltfLoader.load("models/car/test.glb", (gltf) => {
 // Generating and Passing Coordinates for Models
 function passingPositions() {
   let x = 1.5;
-  let y = 1;
+  let y = 0.835;
   let z = 1;
   return { x, y, z };
 }
@@ -248,19 +249,50 @@ function attachControls(pointer) {
 
 // Restrict Translation of an Object
 function restrictingMovement() {
-  let backPlanebbox = new THREE.Box3().setFromObject(backPlane);
-  let leftFloorPlanebbox = new THREE.Box3().setFromObject(leftFloorPlane);
-  let rightFloorPlanebbox = new THREE.Box3().setFromObject(rightFloorPlane);
-  let truckPlanebbox = new THREE.Box3().setFromObject(truckPlane);
-  let rightPlanebbox = new THREE.Box3().setFromObject(rightPlane);
-  let leftPlanebbox = new THREE.Box3().setFromObject(leftPlane);
-  let topPlanebbox = new THREE.Box3().setFromObject(topPlane);
+  backPlanebbox = new THREE.Box3().setFromObject(backPlane);
+  floorPlanebbox = new THREE.Box3().setFromObject(floorPlane);
+  truckPlanebbox = new THREE.Box3().setFromObject(truckPlane);
+  sidePlanebbox = new THREE.Box3().setFromObject(sidePlane);
+  topPlanebbox = new THREE.Box3().setFromObject(topPlane);
   for (const modelGroup of models) {
     let model = modelGroup.model;
+    let van = room.children[0];
+    let vanBoundingBox = new THREE.Box3().setFromObject(van);
     let modelBoundingBox = new THREE.Box3().setFromObject(model);
     let modelSize = modelBoundingBox.getSize(new THREE.Vector3());
+
+    // restricting resizing
+    if (transformControls.mode === "scale") {
+      if (model.scale.x > vanBoundingBox.max.x) {
+        model.scale.x = vanBoundingBox.max.x;
+      }
+      if (model.scale.y > vanBoundingBox.max.y) {
+        model.scale.y = vanBoundingBox.max.y - 0.3;
+      }
+      if (modelBoundingBox.max.z > vanBoundingBox.max.z) {
+        model.scale.z = vanBoundingBox.max.z;
+      }
+    }
+    // restricting movement on the x axis with black plane
     if (modelBoundingBox.max.x > backPlanebbox.max.x) {
       model.position.x = backPlane.position.x - modelSize.x / 2;
+    }
+    // restricting movement on the y axis with top plane
+    if (modelBoundingBox.max.y > topPlanebbox.max.y) {
+      model.position.y = topPlane.position.y - modelSize.y / 2;
+    }
+    // restricting movement on the z axis with side plane
+    if (modelBoundingBox.min.z < sidePlanebbox.min.z) {
+      -(model.position.z = sidePlane.position.z + modelSize.z / 2);
+    }
+    // restricting movement on the x axis with truck plane
+    if (modelBoundingBox.min.x < truckPlanebbox.min.x) {
+      -(model.position.x = truckPlane.position.x + modelSize.x / 2);
+    }
+    // restricting movement on the y axis with floor plane
+    if (modelBoundingBox.min.y < floorPlanebbox.min.y) {
+      model.updateMatrixWorld();
+      model.position.y = floorPlane.position.y + modelSize.y / 2;
     }
   }
 }
@@ -318,6 +350,10 @@ resetBtn.addEventListener("click", resetScene);
  * Animate
  */
 const tick = () => {
+  // update matrix world
+  for (const modelGroup of models) {
+    modelGroup.model.updateMatrixWorld();
+  }
   // Update controls
   controls.update();
 
