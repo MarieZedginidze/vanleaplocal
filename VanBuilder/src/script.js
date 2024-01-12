@@ -82,7 +82,7 @@ controls.maxDistance = 20;
 controls.minPolarAngle = 0; // radians
 controls.maxPolarAngle = 1.3; // radians
 
-// controls.enabled = false;
+//controls.enabled = false;
 
 // Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
