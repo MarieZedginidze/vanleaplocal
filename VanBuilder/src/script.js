@@ -12,6 +12,7 @@ const canvas = document.querySelector("canvas.webgl");
 
 // Scene
 let scene = new THREE.Scene();
+
 /**
  * Lights
  */
@@ -79,14 +80,13 @@ controls.maxDistance = 20;
 
 // Changed how far you can orbit vertically, upper and lower limits.
 controls.minPolarAngle = 0; // radians
-controls.maxPolarAngle = 1.9; // radians
+controls.maxPolarAngle = 1.3; // radians
 
 // controls.enabled = false;
 
 // Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
 scene.add(transformControls);
-
 /**
  *  Models
  */
@@ -104,7 +104,6 @@ let floorPlanebbox;
 let truckPlanebbox;
 let sidePlanebbox;
 let topPlanebbox;
-
 // Load a Room
 gltfLoader.load("models/test-car.glb", (gltf) => {
   room = gltf.scene;
@@ -240,7 +239,6 @@ function attachControls(pointer) {
     }
   }
 }
-
 // Restrict Translation of an Object
 function restrictingMovement() {
   backPlanebbox = new THREE.Box3().setFromObject(backPlane);
@@ -255,19 +253,8 @@ function restrictingMovement() {
     let modelBoundingBox = new THREE.Box3().setFromObject(model);
     let modelSize = modelBoundingBox.getSize(new THREE.Vector3());
 
-    // restricting resizing
-    if (transformControls.mode === "scale") {
-      if (model.scale.x > vanBoundingBox.max.x) {
-        model.scale.x = vanBoundingBox.max.x;
-      }
-      if (model.scale.y > vanBoundingBox.max.y) {
-        model.scale.y = vanBoundingBox.max.y - 0.3;
-      }
-      if (modelBoundingBox.max.z > vanBoundingBox.max.z) {
-        model.scale.z = vanBoundingBox.max.z;
-      }
-    }
     // restricting movement on the x axis with black plane
+
     if (modelBoundingBox.max.x > backPlanebbox.max.x) {
       model.position.x = backPlane.position.x - modelSize.x / 2;
     }
@@ -285,8 +272,16 @@ function restrictingMovement() {
     }
     // restricting movement on the y axis with floor plane
     if (modelBoundingBox.min.y < floorPlanebbox.min.y) {
-      model.updateMatrixWorld();
       model.position.y = floorPlane.position.y + modelSize.y / 2;
+    }
+    // restricting the scaling of the object
+    if (transformControls.mode === "scale") {
+      if (modelBoundingBox.max.x > vanBoundingBox.max.x) {
+      }
+      if (modelBoundingBox.max.y > vanBoundingBox.max.y) {
+      }
+      if (modelBoundingBox.max.z > vanBoundingBox.max.z) {
+      }
     }
   }
 }
@@ -298,34 +293,53 @@ transformControls.addEventListener("dragging-changed", (event) => {
   controls.enabled = !event.value;
 });
 
-controls.addEventListener("dragging-changed", (event) => {
-  // Restricting panning movement
-});
-
+/**
+ * Database
+ */
 /**
  * Saving and Loading the Scene
  */
+// Saving and Loading the Camera's Position and Location Seperately
+function saveCameraLocation() {
+  localStorage.setItem("camera.position.x", camera.position.x);
+  localStorage.setItem("camera.position.y", camera.position.y);
+  localStorage.setItem("camera.position.z", camera.position.z);
+
+  localStorage.setItem("camera.rotation.x", camera.rotation.x);
+  localStorage.setItem("camera.rotation.y", camera.rotation.y);
+  localStorage.setItem("camera.rotation.z", camera.rotation.z);
+}
+function loadCameraLocation() {
+  camera.position.x = parseFloat(localStorage.getItem("camera.position.x"));
+  camera.position.y = parseFloat(localStorage.getItem("camera.position.y"));
+  camera.position.z = parseFloat(localStorage.getItem("camera.position.z"));
+
+  camera.rotation.x = parseFloat(localStorage.getItem("camera.rotation.x"));
+  camera.rotation.y = parseFloat(localStorage.getItem("camera.rotation.y"));
+  camera.rotation.z = parseFloat(localStorage.getItem("camera.rotation.z"));
+}
+
 // Saving the Scene
 function saveScene() {
   let result = scene.toJSON();
+  saveCameraLocation();
   localStorage.savedScene = JSON.stringify(result);
 }
 // Loading the Scene
 function loadScene() {
   scene.updateMatrixWorld();
-
-  if (document.readyState === "complete") {
-    let json = JSON.parse(localStorage.savedScene);
-    console.log(json);
-    let loader = new THREE.ObjectLoader();
-    loader.parse(json, function (e) {
-      // Set the Scene as the loaded Object
-      if (json !== undefined) scene = e;
-    });
-  } else {
-    setTimeout(checkLoaded, 10);
-  }
+  let json = JSON.parse(localStorage.savedScene);
+  console.log(json);
+  let loader = new THREE.ObjectLoader();
+  loadCameraLocation();
+  loader.parse(json, function (e) {
+    // Set the Scene as the loaded Object
+    if (json !== undefined) scene = e;
+  });
 }
+
+document.addEventListener("DOMContentLoaded", loadScene);
+
 // Reseting the Scene
 function resetScene() {
   localStorage.clear();
@@ -339,14 +353,13 @@ window.addEventListener("load", loadScene);
 
 let resetBtn = document.getElementById("reset-btn");
 resetBtn.addEventListener("click", resetScene);
-
 /**
  * Animate
  */
 const tick = () => {
   // update matrix world
   for (const modelGroup of models) {
-    modelGroup.model.updateMatrixWorld();
+    modelGroup.model.updateMatrix();
   }
   // Update controls
   controls.update();
