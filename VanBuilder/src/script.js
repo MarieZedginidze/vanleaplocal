@@ -61,6 +61,7 @@ scene.add(camera);
  */
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
+  preserveDrawingBuffer: true,
 });
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -82,7 +83,7 @@ controls.maxDistance = 20;
 controls.minPolarAngle = 0; // radians
 controls.maxPolarAngle = 1.3; // radians
 
-//controls.enabled = false;
+// controls.enabled = false;
 
 // Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
@@ -213,7 +214,6 @@ function attachControls(pointer) {
   if (models.length === 1) {
     for (const modelGroup of models) {
       let intersectModel = raycaster.intersectObject(modelGroup.model);
-
       // If we have intersected model, attach controls, if not- detach
       if (intersectModel.length) {
         let intersectedObject = intersectModel[0].object.parent;
@@ -248,6 +248,7 @@ function restrictingMovement() {
   topPlanebbox = new THREE.Box3().setFromObject(topPlane);
   for (const modelGroup of models) {
     let model = modelGroup.model;
+    console.log(model);
     let van = room.children[0];
     let vanBoundingBox = new THREE.Box3().setFromObject(van);
     let modelBoundingBox = new THREE.Box3().setFromObject(model);
@@ -321,20 +322,31 @@ function loadCameraLocation() {
 
 // Saving the Scene
 function saveScene() {
-  let result = scene.toJSON();
+  // let result = scene.toJSON();
   saveCameraLocation();
-  localStorage.savedScene = JSON.stringify(result);
+  localStorage.savedScene = JSON.stringify(scene);
 }
+
 // Loading the Scene
 function loadScene() {
   scene.updateMatrixWorld();
   let json = JSON.parse(localStorage.savedScene);
-  console.log(json);
   let loader = new THREE.ObjectLoader();
   loadCameraLocation();
+
   loader.parse(json, function (e) {
     // Set the Scene as the loaded Object
-    if (json !== undefined) scene = e;
+    if (json !== undefined) {
+      scene = e;
+      scene.children[3] = transformControls;
+      for (const child of e.children) {
+        if (e.children.length > 0) {
+          if (child.type === "Group" && child.children.length === 1) {
+            models.push({ model: child });
+          }
+        }
+      }
+    }
   });
 }
 
@@ -353,6 +365,38 @@ window.addEventListener("load", loadScene);
 
 let resetBtn = document.getElementById("reset-btn");
 resetBtn.addEventListener("click", resetScene);
+
+function saveAsImage() {
+  var imgData, imgNode;
+
+  try {
+    var strMime = "image/jpeg";
+    var strDownloadMime = "image/octet-stream";
+
+    imgData = renderer.domElement.toDataURL(strMime);
+
+    saveFile(imgData.replace(strMime, strDownloadMime), "test.jpg");
+  } catch (e) {
+    console.log(e);
+    return;
+  }
+}
+var saveFile = function (strData, filename) {
+  var link = document.createElement("a");
+  if (typeof link.download === "string") {
+    document.body.appendChild(link); //Firefox requires the link to be in the body
+    link.download = filename;
+    link.href = strData;
+    link.click();
+    document.body.removeChild(link); //remove the link when done
+  } else {
+    location.replace(uri);
+  }
+};
+
+// Export
+let exportBtn = document.getElementById("export-btn");
+exportBtn.addEventListener("click", saveAsImage);
 /**
  * Animate
  */
