@@ -61,7 +61,6 @@ scene.add(camera);
  */
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
-  preserveDrawingBuffer: true,
 });
 renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
@@ -83,7 +82,7 @@ controls.maxDistance = 20;
 controls.minPolarAngle = 0; // radians
 controls.maxPolarAngle = 1.3; // radians
 
-// controls.enabled = false;
+//controls.enabled = false;
 
 // Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
@@ -105,6 +104,7 @@ let floorPlanebbox;
 let truckPlanebbox;
 let sidePlanebbox;
 let topPlanebbox;
+
 // Load a Room
 gltfLoader.load("models/test-car.glb", (gltf) => {
   room = gltf.scene;
@@ -213,6 +213,7 @@ function attachControls(pointer) {
   // If there is only one model, only check for a single model
   if (models.length === 1) {
     for (const modelGroup of models) {
+      console.log(modelGroup);
       let intersectModel = raycaster.intersectObject(modelGroup.model);
       // If we have intersected model, attach controls, if not- detach
       if (intersectModel.length) {
@@ -248,7 +249,6 @@ function restrictingMovement() {
   topPlanebbox = new THREE.Box3().setFromObject(topPlane);
   for (const modelGroup of models) {
     let model = modelGroup.model;
-    console.log(model);
     let van = room.children[0];
     let vanBoundingBox = new THREE.Box3().setFromObject(van);
     let modelBoundingBox = new THREE.Box3().setFromObject(model);
@@ -297,9 +297,7 @@ transformControls.addEventListener("dragging-changed", (event) => {
 /**
  * Database
  */
-/**
- * Saving and Loading the Scene
- */
+
 // Saving and Loading the Camera's Position and Location Seperately
 function saveCameraLocation() {
   localStorage.setItem("camera.position.x", camera.position.x);
@@ -320,90 +318,59 @@ function loadCameraLocation() {
   camera.rotation.z = parseFloat(localStorage.getItem("camera.rotation.z"));
 }
 
-// Saving the Scene
 function saveScene() {
-  // let result = scene.toJSON();
   saveCameraLocation();
-  localStorage.savedScene = JSON.stringify(scene);
-}
+  let existingModels = JSON.parse(localStorage.getItem("models"));
+  if (existingModels == null) existingModels = [];
+  let model;
+  for (const modelGrop of models) {
+    model = modelGrop.model;
+    localStorage.setItem("model", JSON.stringify(model));
+    // Save allModels back to local storage
+    existingModels.push({ model });
+    localStorage.setItem("models", JSON.stringify(existingModels));
+  }
 
-// Loading the Scene
+  // Save whole scene
+  let result = scene.toJSON();
+  localStorage.savedScene = JSON.stringify(result);
+}
 function loadScene() {
-  scene.updateMatrixWorld();
-  let json = JSON.parse(localStorage.savedScene);
   let loader = new THREE.ObjectLoader();
+
+  let retrievedModels = JSON.parse(localStorage.getItem("models"));
+  for (const modelGrop of retrievedModels) {
+    loader.parse(modelGrop.model, function (e) {
+      models.push({ model: e });
+      scene.add(e);
+    });
+  }
+
+  // parsing the whole scene
+  let parsedScene = JSON.parse(localStorage.savedScene);
+  loader.parse(parsedScene, function (e) {});
   loadCameraLocation();
-
-  loader.parse(json, function (e) {
-    // Set the Scene as the loaded Object
-    if (json !== undefined) {
-      scene = e;
-      scene.children[3] = transformControls;
-      for (const child of e.children) {
-        if (e.children.length > 0) {
-          if (child.type === "Group" && child.children.length === 1) {
-            models.push({ model: child });
-          }
-        }
-      }
-    }
-  });
 }
+let savingBtn = document.getElementById("save-btn");
+savingBtn.addEventListener("click", saveScene);
 
-document.addEventListener("DOMContentLoaded", loadScene);
+window.addEventListener("load", loadScene);
 
 // Reseting the Scene
 function resetScene() {
   localStorage.clear();
   location.reload();
 }
-
-let savingBtn = document.getElementById("save-btn");
-savingBtn.addEventListener("click", saveScene);
-
-window.addEventListener("load", loadScene);
-
 let resetBtn = document.getElementById("reset-btn");
 resetBtn.addEventListener("click", resetScene);
 
-function saveAsImage() {
-  var imgData, imgNode;
-
-  try {
-    var strMime = "image/jpeg";
-    var strDownloadMime = "image/octet-stream";
-
-    imgData = renderer.domElement.toDataURL(strMime);
-
-    saveFile(imgData.replace(strMime, strDownloadMime), "test.jpg");
-  } catch (e) {
-    console.log(e);
-    return;
-  }
-}
-var saveFile = function (strData, filename) {
-  var link = document.createElement("a");
-  if (typeof link.download === "string") {
-    document.body.appendChild(link); //Firefox requires the link to be in the body
-    link.download = filename;
-    link.href = strData;
-    link.click();
-    document.body.removeChild(link); //remove the link when done
-  } else {
-    location.replace(uri);
-  }
-};
-
-// Export
-let exportBtn = document.getElementById("export-btn");
-exportBtn.addEventListener("click", saveAsImage);
 /**
  * Animate
  */
 const tick = () => {
   // update matrix world
   for (const modelGroup of models) {
-    modelGroup.model.updateMatrix();
+    // modelGroup.model.updateMatrix();
   }
   // Update controls
   controls.update();
