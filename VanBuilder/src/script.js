@@ -82,7 +82,7 @@ controls.maxDistance = 20;
 controls.minPolarAngle = 0; // radians
 controls.maxPolarAngle = 1.3; // radians
 
-//controls.enabled = false;
+// controls.enabled = false;
 
 // Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
@@ -137,6 +137,11 @@ const cupboardPath = "/models/cupboard.glb";
 debugObject.cupboard = () => {
   createModel(cupboardPath, passingPositions());
 };
+// Load and Pass a Sphere Model
+const spherePath = "/models/sphere.glb";
+debugObject.sphere = () => {
+  createModel(spherePath, passingPositions());
+};
 
 let models = [];
 // Define General Create Model Function
@@ -150,7 +155,9 @@ const createModel = (path, positions) => {
     scene.add(model);
   });
 };
+
 gui.add(debugObject, "cupboard").name("create a cupboard");
+gui.add(debugObject, "sphere").name("create a sphere");
 
 /**
  *  Track Mouse Events
@@ -213,7 +220,6 @@ function attachControls(pointer) {
   // If there is only one model, only check for a single model
   if (models.length === 1) {
     for (const modelGroup of models) {
-      console.log(modelGroup);
       let intersectModel = raycaster.intersectObject(modelGroup.model);
       // If we have intersected model, attach controls, if not- detach
       if (intersectModel.length) {
@@ -320,15 +326,15 @@ function loadCameraLocation() {
 
 function saveScene() {
   saveCameraLocation();
-  let existingModels = JSON.parse(localStorage.getItem("models"));
-  if (existingModels == null) existingModels = [];
-  let model;
-  for (const modelGrop of models) {
-    model = modelGrop.model;
-    localStorage.setItem("model", JSON.stringify(model));
-    // Save allModels back to local storage
+  let existingModels = [];
+
+  for (let i = 0; i < models.length; i++) {
+    let model = models[i].model;
+    let modelID = model.id;
+
     existingModels.push({ model });
-    localStorage.setItem("models", JSON.stringify(existingModels));
+    console.log(existingModels);
+    localStorage.setItem("localModels", JSON.stringify(existingModels));
   }
 
   // Save whole scene
@@ -338,7 +344,7 @@ function saveScene() {
 function loadScene() {
   let loader = new THREE.ObjectLoader();
 
-  let retrievedModels = JSON.parse(localStorage.getItem("models"));
+  let retrievedModels = JSON.parse(localStorage.getItem("localModels"));
   for (const modelGrop of retrievedModels) {
     loader.parse(modelGrop.model, function (e) {
       models.push({ model: e });
@@ -370,7 +376,7 @@ resetBtn.addEventListener("click", resetScene);
 const tick = () => {
   // update matrix world
   for (const modelGroup of models) {
-    // modelGroup.model.updateMatrix();
+    modelGroup.model.updateMatrix();
   }
   // Update controls
   controls.update();
