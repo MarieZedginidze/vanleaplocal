@@ -212,9 +212,37 @@ window.addEventListener("keydown", setShotrCutKey, true);
  * Display Sidebar
  */
 function displaySidebar(modelName) {
-  console.log(modelName);
+  if (modelName === "Cube") {
+    document.getElementById("model-image").src =
+      "https://www.aberdeens.co.za/images/cmsimages/big/product_267_2DoorFloorKitchenCupboard(PineTop)ClearPine(1).jpg";
+
+    document.querySelector(".info-sidebar").style.display = "block";
+  }
+  if (modelName === "Sphere") {
+    document.getElementById("model-image").src =
+      "https://www.splashlearn.com/math-vocabulary/wp-content/uploads/2022/04/sphere1.png";
+
+    document.querySelector(".info-sidebar").style.display = "block";
+  }
 }
 
+/**
+ *
+ * Delete the Model
+ */
+let modelToDelete;
+function getClickedModel(model) {
+  console.log(model);
+  modelToDelete = model;
+}
+function deleteModel() {
+  if (modelToDelete) {
+    transformControls.detach();
+    modelToDelete.removeFromParent(scene);
+  }
+}
+let deleteBtn = document.getElementById("delete-btn");
+deleteBtn.addEventListener("click", deleteModel);
 /*
  * Check For Intersecting Models and Toggle Transform Controls
  */
@@ -237,6 +265,7 @@ function attachControls(pointer) {
 
         // Check Model's Names and Send it to the Sidebar Function
         displaySidebar(intersectModel[0].object.name);
+        getClickedModel(intersectModel[0].object);
       } else {
         transformControls.detach();
       }
@@ -255,6 +284,7 @@ function attachControls(pointer) {
       transformControls.attach(firstObject);
       // Check Model's Names and Send it to the Sidebar Function
       displaySidebar(firstObject.children[0].name);
+      getClickedModel(firstObject.children[0]);
     } else {
       transformControls.detach();
     }
@@ -382,14 +412,6 @@ function resetScene() {
 }
 let resetBtn = document.getElementById("reset-btn");
 resetBtn.addEventListener("click", resetScene);
-
-/**
- *
- * Delete the Model
- */
-function deleteModel() {}
-let deleteBtn = document.getElementById("delete-btn");
-deleteBtn.addEventListener("click", deleteModel);
 
 function saveAsImage() {
   var imgData, imgNode;

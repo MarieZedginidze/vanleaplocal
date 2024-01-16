@@ -19,15 +19,11 @@
     <button id="save-btn">save</button>
     <button id="reset-btn">reset</button>
     <button id="export-btn">export</button>
-    <button id="delete-btn">delete</button>
 
-    <sidebar>
-      <header class="sidebar-info">
+    <sidebar class="info-sidebar">
+      <header class="info-sidebar-header">
         <div class="image">
-          <img
-            src="https://www.aberdeens.co.za/images/cmsimages/big/product_267_2DoorFloorKitchenCupboard(PineTop)ClearPine(1).jpg"
-            alt=""
-          />
+          <img id="model-image" src="" alt="" />
         </div>
         <div class="size">
           <div class="info">
@@ -46,6 +42,9 @@
           <input id="input-length" type="text" />
         </div>
       </header>
+      <div class="info-sidebar-remove">
+        <button id="delete-btn">delete</button>
+      </div>
     </sidebar>
     <script type="module" src="./script.js"></script>
   </body>
