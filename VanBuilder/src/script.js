@@ -87,6 +87,7 @@ controls.maxPolarAngle = 1.3; // radians
 
 // Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
+transformControls.setSize(0.8, 0.8, 0.8);
 scene.add(transformControls);
 /**
  *  Models
@@ -207,6 +208,13 @@ function setShotrCutKey(event) {
 
 window.addEventListener("keydown", setShotrCutKey, true);
 
+/**
+ * Display Sidebar
+ */
+function displaySidebar(modelName) {
+  console.log(modelName);
+}
+
 /*
  * Check For Intersecting Models and Toggle Transform Controls
  */
@@ -226,6 +234,9 @@ function attachControls(pointer) {
       if (intersectModel.length) {
         let intersectedObject = intersectModel[0].object.parent;
         transformControls.attach(intersectedObject);
+
+        // Check Model's Names and Send it to the Sidebar Function
+        displaySidebar(intersectModel[0].object.name);
       } else {
         transformControls.detach();
       }
@@ -242,6 +253,8 @@ function attachControls(pointer) {
     if (intersectModels.length) {
       firstObject = intersectModels[0].object.parent;
       transformControls.attach(firstObject);
+      // Check Model's Names and Send it to the Sidebar Function
+      displaySidebar(firstObject.children[0].name);
     } else {
       transformControls.detach();
     }
@@ -334,7 +347,6 @@ function saveScene() {
     let modelID = model.id;
 
     existingModels.push({ model });
-    console.log(existingModels);
     localStorage.setItem("localModels", JSON.stringify(existingModels));
   }
 
@@ -370,6 +382,14 @@ function resetScene() {
 }
 let resetBtn = document.getElementById("reset-btn");
 resetBtn.addEventListener("click", resetScene);
+
+/**
+ *
+ * Delete the Model
+ */
+function deleteModel() {}
+let deleteBtn = document.getElementById("delete-btn");
+deleteBtn.addEventListener("click", deleteModel);
 
 function saveAsImage() {
   var imgData, imgNode;

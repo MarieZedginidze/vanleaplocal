@@ -3,6 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://unpkg.com/css.gg@2.0.0/icons/css/trash-empty.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://unpkg.com/css.gg@2.0.0/icons/css/info.css"
+      rel="stylesheet"
+    />
     <title>Van Builder</title>
     <link rel="stylesheet" href="./style.css" />
   </head>
@@ -11,7 +19,34 @@
     <button id="save-btn">save</button>
     <button id="reset-btn">reset</button>
     <button id="export-btn">export</button>
+    <button id="delete-btn">delete</button>
 
+    <sidebar>
+      <header class="sidebar-info">
+        <div class="image">
+          <img
+            src="https://www.aberdeens.co.za/images/cmsimages/big/product_267_2DoorFloorKitchenCupboard(PineTop)ClearPine(1).jpg"
+            alt=""
+          />
+        </div>
+        <div class="size">
+          <div class="info">
+            <span class="height"> height: 1m </span>
+            <span> width: 1m </span>
+            <span> length: 1m </span>
+          </div>
+
+          <label for="input-height">height: </label>
+          <input id="input-height" type="text" />
+
+          <label for="input-width">width: </label>
+          <input id="input-width" type="text" />
+
+          <label for="input-length">length: </label>
+          <input id="input-length" type="text" />
+        </div>
+      </header>
+    </sidebar>
     <script type="module" src="./script.js"></script>
   </body>
 </html>

@@ -18,24 +18,39 @@ body {
 #save-btn {
   position: absolute;
   top: 2%;
-  left: 5%;
+  left: 25%;
   padding: 0.5em 1em;
 }
 #reset-btn {
   position: absolute;
   top: 2%;
-  left: 12%;
+  left: 30%;
   padding: 0.5em 1em;
 }
-#delete-btn {
-  position: absolute;
-  top: 2%;
-  left: 19%;
-  padding: 0.5em 1em;
-}
+
 #export-btn {
   position: absolute;
   top: 2%;
-  left: 20%;
+  left: 35%;
   padding: 0.5em 1em;
+}
+
+#delete-btn {
+  position: absolute;
+  top: 2%;
+  left: 40%;
+  padding: 0.5em 1em;
+}
+
+.sidebar-info {
+  width: 20%;
+  height: 100%;
+  background-color: #fff;
+  position: absolute;
+  display: none;
+}
+
+img {
+  width: 150px;
+  height: 150px;
 }
