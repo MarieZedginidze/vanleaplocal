@@ -268,6 +268,7 @@ function attachControls(pointer) {
         getClickedModel(intersectModel[0].object);
       } else {
         transformControls.detach();
+        getClickedModel(undefined);
       }
     }
   }
@@ -287,6 +288,7 @@ function attachControls(pointer) {
       getClickedModel(firstObject.children[0]);
     } else {
       transformControls.detach();
+      getClickedModel(undefined);
     }
   }
 }
