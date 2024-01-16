@@ -239,6 +239,7 @@ function deleteModel() {
   if (modelToDelete) {
     transformControls.detach();
     modelToDelete.removeFromParent(scene);
+    document.querySelector(".info-sidebar").style.display = "none";
   }
 }
 let deleteBtn = document.getElementById("delete-btn");
