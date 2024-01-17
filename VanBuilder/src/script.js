@@ -209,9 +209,16 @@ function setShotrCutKey(event) {
 window.addEventListener("keydown", setShotrCutKey, true);
 
 /**
- * Display Sidebar
+ * Display the Info Sidebar
  */
 let infoSidebar = document.querySelector(".info-sidebar");
+let infoWidth = document.getElementById("info-width");
+let infoHeight = document.getElementById("info-height");
+let infoLength = document.getElementById("info-length");
+let heightFromInput = document.getElementById("input-height");
+let widthFromInput = document.getElementById("input-width");
+let lengthFromInput = document.getElementById("input-length");
+let changeSizesInputs = document.querySelectorAll(".change-sizes");
 
 function displaySidebar(modelName) {
   if (modelName === "Cube") {
@@ -226,25 +233,32 @@ function displaySidebar(modelName) {
   }
   infoSidebar.style.display = "block";
 }
+/**
+ * Close the Info Sidebar
+ */
+let closeBtn = document.getElementById("close-btn");
+closeBtn.addEventListener("click", () => {
+  infoSidebar.style.display = "none";
+});
 
 /**
  * Delete the Model
  */
 let deleteBtn = document.getElementById("delete-btn");
 
-let modelToDelete;
+let modelFromIntersection;
 function getClickedModel(model) {
   if (!model) {
     deleteBtn.disabled = true;
   } else {
     deleteBtn.disabled = false;
   }
-  modelToDelete = model;
+  modelFromIntersection = model;
 }
 function deleteModel() {
-  if (modelToDelete) {
+  if (modelFromIntersection) {
     transformControls.detach();
-    modelToDelete.removeFromParent(scene);
+    modelFromIntersection.removeFromParent(scene);
     infoSidebar.style.display = "none";
   }
 }
@@ -253,11 +267,62 @@ deleteBtn.addEventListener("click", deleteModel);
 /**
  * Display Model Info
  */
+function displayModelSizes(sizes) {
+  let width = Math.round((sizes.z + Number.EPSILON) * 100) / 100;
+  let height = Math.round((sizes.y + Number.EPSILON) * 100) / 100;
+  let length = Math.round((sizes.x + Number.EPSILON) * 100) / 100;
 
-let closeBtn = document.getElementById("close-btn");
-closeBtn.addEventListener("click", () => {
-  infoSidebar.style.display = "none";
-});
+  infoWidth.textContent = `width: ${width} m,`;
+  infoHeight.textContent = `height: ${height} m,`;
+  infoLength.textContent = `length: ${length} m,`;
+}
+/**
+ * Change Model Sizes Based on the User's Inputs
+ */
+function getSizesFromInput(e) {
+  let widthUserInput;
+  let heightUserInput;
+  let lengthUserInput;
+  if (e.target.id === "input-width") {
+    if (e.target.value) {
+      widthUserInput = e.target.value;
+    }
+  }
+  if (e.target.id === "input-height") {
+    if (e.target.value) {
+      heightUserInput = e.target.value;
+    }
+  }
+  if (e.target.id === "input-length") {
+    if (e.target.value) {
+      lengthUserInput = e.target.value;
+    }
+  }
+  changeSizesFromInput(widthUserInput, heightUserInput, lengthUserInput);
+}
+for (const input of changeSizesInputs) {
+  input.addEventListener("input", getSizesFromInput);
+}
+
+function changeSizesFromInput(width, height, length) {
+  let model = modelFromIntersection;
+
+  if (model) {
+    if (width) {
+      console.log(width);
+      model.scale.x = width;
+    }
+
+    if (height) {
+      console.log(height);
+      model.scale.y = height;
+    }
+    if (length) {
+      console.log(length);
+      model.scale.z = length;
+    }
+  }
+}
 
 /*
  * Check For Intersecting Models and Toggle Transform Controls
@@ -321,6 +386,7 @@ function restrictingMovement() {
     let vanBoundingBox = new THREE.Box3().setFromObject(van);
     let modelBoundingBox = new THREE.Box3().setFromObject(model);
     let modelSize = modelBoundingBox.getSize(new THREE.Vector3());
+    displayModelSizes(modelSize);
 
     // restricting movement on the x axis with black plane
 
@@ -442,7 +508,7 @@ function saveAsImage() {
 
     saveFile(imgData.replace(strMime, strDownloadMime), "test.jpg");
   } catch (e) {
-    console.log(e);
+    // console.log(e);
     return;
   }
 }

@@ -42,7 +42,13 @@ body {
   position: absolute;
   display: none;
 }
-
+.changeSize {
+  display: flex;
+  flex-direction: column;
+}
+.change-sizes {
+  width: 50%;
+}
 img {
   width: 150px;
   height: 150px;
