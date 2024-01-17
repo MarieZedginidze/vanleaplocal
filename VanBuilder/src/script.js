@@ -83,7 +83,7 @@ controls.maxDistance = 20;
 controls.minPolarAngle = 0; // radians
 controls.maxPolarAngle = 1.3; // radians
 
-// controls.enabled = false;
+//controls.enabled = false;
 
 // Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
@@ -211,6 +211,8 @@ window.addEventListener("keydown", setShotrCutKey, true);
 /**
  * Display Sidebar
  */
+let infoSidebar = document.querySelector(".info-sidebar");
+
 function displaySidebar(modelName) {
   if (modelName === "Cube") {
     document.getElementById("model-image").src =
@@ -221,29 +223,42 @@ function displaySidebar(modelName) {
   if (modelName === "Sphere") {
     document.getElementById("model-image").src =
       "https://www.splashlearn.com/math-vocabulary/wp-content/uploads/2022/04/sphere1.png";
-
-    document.querySelector(".info-sidebar").style.display = "block";
   }
+  infoSidebar.style.display = "block";
 }
 
 /**
- *
  * Delete the Model
  */
+let deleteBtn = document.getElementById("delete-btn");
+
 let modelToDelete;
 function getClickedModel(model) {
-  console.log(model);
+  if (!model) {
+    deleteBtn.disabled = true;
+  } else {
+    deleteBtn.disabled = false;
+  }
   modelToDelete = model;
 }
 function deleteModel() {
   if (modelToDelete) {
     transformControls.detach();
     modelToDelete.removeFromParent(scene);
-    document.querySelector(".info-sidebar").style.display = "none";
+    infoSidebar.style.display = "none";
   }
 }
-let deleteBtn = document.getElementById("delete-btn");
 deleteBtn.addEventListener("click", deleteModel);
+
+/**
+ * Display Model Info
+ */
+
+let closeBtn = document.getElementById("close-btn");
+closeBtn.addEventListener("click", () => {
+  infoSidebar.style.display = "none";
+});
+
 /*
  * Check For Intersecting Models and Toggle Transform Controls
  */
