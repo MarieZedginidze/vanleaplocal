@@ -83,7 +83,7 @@ controls.maxDistance = 20;
 controls.minPolarAngle = 0; // radians
 controls.maxPolarAngle = 1.3; // radians
 
-//controls.enabled = false;
+// controls.enabled = false;
 
 // Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
@@ -94,7 +94,7 @@ scene.add(transformControls);
  */
 const gltfLoader = new GLTFLoader();
 
-let room;
+let van;
 let backPlane;
 let floorPlane;
 let truckPlane;
@@ -107,14 +107,14 @@ let truckPlanebbox;
 let sidePlanebbox;
 let topPlanebbox;
 
-// Load a Room
+// Load a van
 gltfLoader.load("models/test-car.glb", (gltf) => {
-  room = gltf.scene;
-  backPlane = room.getObjectByName("backPlane");
-  floorPlane = room.getObjectByName("floorPlane");
-  truckPlane = room.getObjectByName("truckPlane");
-  sidePlane = room.getObjectByName("sidePlane");
-  topPlane = room.getObjectByName("topPlane");
+  van = gltf.scene;
+  backPlane = van.getObjectByName("backPlane");
+  floorPlane = van.getObjectByName("floorPlane");
+  truckPlane = van.getObjectByName("truckPlane");
+  sidePlane = van.getObjectByName("sidePlane");
+  topPlane = van.getObjectByName("topPlane");
 
   backPlane.visible = false;
   floorPlane.visible = false;
@@ -123,7 +123,7 @@ gltfLoader.load("models/test-car.glb", (gltf) => {
   topPlane.visible = false;
 
   scene.position.set(0, 0, 0);
-  scene.add(room);
+  scene.add(van);
 });
 
 // Generating and Passing Coordinates for Models
@@ -209,16 +209,14 @@ function setShotrCutKey(event) {
 window.addEventListener("keydown", setShotrCutKey, true);
 
 /**
- * Display the Info Sidebar
+ * Display and Close the Info Sidebar
  */
+let lengthInput = document.getElementById("input-length");
+let heightInput = document.getElementById("input-height");
+let widthInput = document.getElementById("input-width");
+
 let infoSidebar = document.querySelector(".info-sidebar");
-let infoWidth = document.getElementById("info-width");
-let infoHeight = document.getElementById("info-height");
-let infoLength = document.getElementById("info-length");
-let heightFromInput = document.getElementById("input-height");
-let widthFromInput = document.getElementById("input-width");
-let lengthFromInput = document.getElementById("input-length");
-let changeSizesInputs = document.querySelectorAll(".change-sizes");
+let changeSizesInputs = document.querySelectorAll(".changeSizeInputs");
 
 function displaySidebar(modelName) {
   if (modelName === "Cube") {
@@ -233,28 +231,30 @@ function displaySidebar(modelName) {
   }
   infoSidebar.style.display = "block";
 }
-/**
- * Close the Info Sidebar
- */
+// Close the Info Sidebar
 let closeBtn = document.getElementById("close-btn");
 closeBtn.addEventListener("click", () => {
   infoSidebar.style.display = "none";
 });
 
+// Get Model from the attachControls Function
+let modelFromIntersection;
+
+function getClickedModel(model) {
+  if (model) {
+    // If there is an intersecting model, enable the button
+    deleteBtn.disabled = false;
+  } else {
+    // If there is no intersecting model, disable the button
+    deleteBtn.disabled = true;
+  }
+  modelFromIntersection = model;
+}
+
 /**
  * Delete the Model
  */
 let deleteBtn = document.getElementById("delete-btn");
-
-let modelFromIntersection;
-function getClickedModel(model) {
-  if (!model) {
-    deleteBtn.disabled = true;
-  } else {
-    deleteBtn.disabled = false;
-  }
-  modelFromIntersection = model;
-}
 function deleteModel() {
   if (modelFromIntersection) {
     transformControls.detach();
@@ -264,64 +264,48 @@ function deleteModel() {
 }
 deleteBtn.addEventListener("click", deleteModel);
 
-/**
- * Display Model Info
- */
-function displayModelSizes(sizes) {
-  let width = Math.round((sizes.z + Number.EPSILON) * 100) / 100;
-  let height = Math.round((sizes.y + Number.EPSILON) * 100) / 100;
-  let length = Math.round((sizes.x + Number.EPSILON) * 100) / 100;
+// Display Sizes of the Models into the Info Sidebar Inputs
+let modelBoundingBox;
+let modelSize;
 
-  infoWidth.textContent = `width: ${width} m,`;
-  infoHeight.textContent = `height: ${height} m,`;
-  infoLength.textContent = `length: ${length} m,`;
+function displayModelSizes() {
+  if (modelFromIntersection) {
+    modelBoundingBox = new THREE.Box3().setFromObject(modelFromIntersection);
+    modelSize = modelBoundingBox.getSize(new THREE.Vector3());
+    lengthInput.value = Math.round((modelSize.x + Number.EPSILON) * 100) / 100;
+    heightInput.value = Math.round((modelSize.y + Number.EPSILON) * 100) / 100;
+    widthInput.value = Math.round((modelSize.z + Number.EPSILON) * 100) / 100;
+  }
 }
+
 /**
  * Change Model Sizes Based on the User's Inputs
  */
-function getSizesFromInput(e) {
-  let widthUserInput;
-  let heightUserInput;
+
+function setSizesFromInput(e) {
   let lengthUserInput;
-  if (e.target.id === "input-width") {
-    if (e.target.value) {
-      widthUserInput = e.target.value;
-    }
+  let heightUserInput;
+  let widthUserInput;
+
+  modelBoundingBox = new THREE.Box3().setFromObject(modelFromIntersection);
+  modelSize = modelBoundingBox.getSize(new THREE.Vector3());
+
+  // Display Scale Information as the Input Values
+  if (e.target.id === "input-length" && e.target.value) {
+    // start scale from the length of the element
+    lengthUserInput = e.target.value;
   }
-  if (e.target.id === "input-height") {
-    if (e.target.value) {
-      heightUserInput = e.target.value;
-    }
+  if (e.target.id === "input-height" && e.target.value) {
+    heightUserInput = e.target.value;
+    modelFromIntersection.scale.y = scaleY;
   }
-  if (e.target.id === "input-length") {
-    if (e.target.value) {
-      lengthUserInput = e.target.value;
-    }
+  if (e.target.id === "input-width" && e.target.value) {
+    widthUserInput = e.target.value;
+    modelFromIntersection.scale.z = scaleZ;
   }
-  changeSizesFromInput(widthUserInput, heightUserInput, lengthUserInput);
 }
 for (const input of changeSizesInputs) {
-  input.addEventListener("input", getSizesFromInput);
-}
-
-function changeSizesFromInput(width, height, length) {
-  let model = modelFromIntersection;
-
-  if (model) {
-    if (width) {
-      console.log(width);
-      model.scale.x = width;
-    }
-
-    if (height) {
-      console.log(height);
-      model.scale.y = height;
-    }
-    if (length) {
-      console.log(length);
-      model.scale.z = length;
-    }
-  }
+  input.addEventListener("input", setSizesFromInput);
 }
 
 /*
@@ -347,6 +331,7 @@ function attachControls(pointer) {
         // Check Model's Names and Send it to the Sidebar Function
         displaySidebar(intersectModel[0].object.name);
         getClickedModel(intersectModel[0].object);
+        displayModelSizes();
       } else {
         transformControls.detach();
         getClickedModel(undefined);
@@ -367,13 +352,17 @@ function attachControls(pointer) {
       // Check Model's Names and Send it to the Sidebar Function
       displaySidebar(firstObject.children[0].name);
       getClickedModel(firstObject.children[0]);
+      displayModelSizes();
     } else {
       transformControls.detach();
       getClickedModel(undefined);
     }
   }
 }
-// Restrict Translation of an Object
+/**
+ * Restrict Translation of an Object
+ *
+ */
 function restrictingMovement() {
   backPlanebbox = new THREE.Box3().setFromObject(backPlane);
   floorPlanebbox = new THREE.Box3().setFromObject(floorPlane);
@@ -382,42 +371,33 @@ function restrictingMovement() {
   topPlanebbox = new THREE.Box3().setFromObject(topPlane);
   for (const modelGroup of models) {
     let model = modelGroup.model;
-    let van = room.children[0];
-    let vanBoundingBox = new THREE.Box3().setFromObject(van);
+    let car = van.children[0];
     let modelBoundingBox = new THREE.Box3().setFromObject(model);
     let modelSize = modelBoundingBox.getSize(new THREE.Vector3());
-    displayModelSizes(modelSize);
 
     // restricting movement on the x axis with black plane
-
-    if (modelBoundingBox.max.x > backPlanebbox.max.x) {
-      model.position.x = backPlane.position.x - modelSize.x / 2;
-    }
-    // restricting movement on the y axis with top plane
-    if (modelBoundingBox.max.y > topPlanebbox.max.y) {
-      model.position.y = topPlane.position.y - modelSize.y / 2;
-    }
-    // restricting movement on the z axis with side plane
-    if (modelBoundingBox.min.z < sidePlanebbox.min.z) {
-      -(model.position.z = sidePlane.position.z + modelSize.z / 2);
-    }
-    // restricting movement on the x axis with truck plane
-    if (modelBoundingBox.min.x < truckPlanebbox.min.x) {
-      -(model.position.x = truckPlane.position.x + modelSize.x / 2);
-    }
-    // restricting movement on the y axis with floor plane
-    if (modelBoundingBox.min.y < floorPlanebbox.min.y) {
-      model.position.y = floorPlane.position.y + modelSize.y / 2;
-    }
-    // restricting the scaling of the object
-    if (transformControls.mode === "scale") {
-      if (modelBoundingBox.max.x > vanBoundingBox.max.x) {
+    if (transformControls.mode === "translate") {
+      if (modelBoundingBox.max.x > backPlanebbox.max.x) {
+        model.position.x = backPlane.position.x - modelSize.x / 2;
       }
-      if (modelBoundingBox.max.y > vanBoundingBox.max.y) {
+      // restricting movement on the y axis with top plane
+      if (modelBoundingBox.max.y > topPlanebbox.max.y) {
+        model.position.y = topPlane.position.y - modelSize.y / 2;
       }
-      if (modelBoundingBox.max.z > vanBoundingBox.max.z) {
+      // restricting movement on the z axis with side plane
+      if (modelBoundingBox.min.z < sidePlanebbox.min.z) {
+        -(model.position.z = sidePlane.position.z + modelSize.z / 2);
+      }
+      // restricting movement on the x axis with truck plane
+      if (modelBoundingBox.min.x < truckPlanebbox.min.x) {
+        -(model.position.x = truckPlane.position.x + modelSize.x / 2);
+      }
+      // restricting movement on the y axis with floor plane
+      if (modelBoundingBox.min.y < floorPlanebbox.min.y) {
+        model.position.y = floorPlane.position.y + modelSize.y / 2;
       }
     }
+    displayModelSizes();
   }
 }
 
@@ -458,7 +438,6 @@ function saveScene() {
 
   for (let i = 0; i < models.length; i++) {
     let model = models[i].model;
-    let modelID = model.id;
 
     existingModels.push({ model });
     localStorage.setItem("localModels", JSON.stringify(existingModels));
@@ -484,12 +463,13 @@ function loadScene() {
   loader.parse(parsedScene, function (e) {});
   loadCameraLocation();
 }
+// Save scene models to the localstorage under the existingModels array
 let savingBtn = document.getElementById("save-btn");
 savingBtn.addEventListener("click", saveScene);
-
+// Add the models from the Locastorage existingModels array to the Scene
 window.addEventListener("load", loadScene);
 
-// Reseting the Scene
+// Clear the Localstorage and the Models in the Scene
 function resetScene() {
   localStorage.clear();
   location.reload();
@@ -498,22 +478,21 @@ let resetBtn = document.getElementById("reset-btn");
 resetBtn.addEventListener("click", resetScene);
 
 function saveAsImage() {
-  var imgData, imgNode;
+  let imgData;
 
   try {
-    var strMime = "image/jpeg";
-    var strDownloadMime = "image/octet-stream";
+    let strMime = "image/jpeg";
+    let strDownloadMime = "image/octet-stream";
 
     imgData = renderer.domElement.toDataURL(strMime);
 
-    saveFile(imgData.replace(strMime, strDownloadMime), "test.jpg");
+    saveFile(imgData.replace(strMime, strDownloadMime), "my-van.jpg");
   } catch (e) {
-    // console.log(e);
     return;
   }
 }
-var saveFile = function (strData, filename) {
-  var link = document.createElement("a");
+let saveFile = function (strData, filename) {
+  let link = document.createElement("a");
   if (typeof link.download === "string") {
     document.body.appendChild(link); //Firefox requires the link to be in the body
     link.download = filename;
@@ -525,11 +504,10 @@ var saveFile = function (strData, filename) {
   }
 };
 
-/**
- * Export the Scene
- *  */
+// Download the Scene as a JPG
 let exportBtn = document.getElementById("export-btn");
 exportBtn.addEventListener("click", saveAsImage);
+
 /**
  * Animate
  */

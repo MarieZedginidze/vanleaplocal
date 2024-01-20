@@ -28,26 +28,31 @@
         <div class="image">
           <img id="model-image" src="" alt="" />
         </div>
-        <div class="changeSize">
-          <div class="info">
-            <span id="info-width"> </span>
-            <span id="info-height"> </span>
-            <span id="info-length"> </span>
-          </div>
-
-          <label for="input-width">width: </label>
-          <input class="change-sizes" id="input-width" type="text" />
-
-          <label for="input-height">height: </label>
-          <input class="change-sizes" id="input-height" type="text" />
-
-          <label for="input-length">length: </label>
-          <input class="change-sizes" id="input-length" type="text" />
-        </div>
       </header>
-      <div class="info-sidebar-remove">
+
+      <section class="changeSizeInputs">
+        <label for="input-length">length: </label>
+        <input
+          class="change-sizes"
+          id="input-length"
+          type="number"
+          step="0.1"
+        />
+
+        <label for="input-height">height: </label>
+        <input
+          class="change-sizes"
+          id="input-height"
+          type="number"
+          step="0.1"
+        />
+
+        <label for="input-width">width: </label>
+        <input class="change-sizes" id="input-width" type="number" step="0.1" />
+      </section>
+      <section class="info-sidebar-remove">
         <button id="delete-btn">delete</button>
-      </div>
+      </section>
     </sidebar>
     <script type="module" src="./script.js"></script>
   </body>

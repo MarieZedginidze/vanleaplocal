@@ -42,7 +42,7 @@ body {
   position: absolute;
   display: none;
 }
-.changeSize {
+.changeSizeInputs {
   display: flex;
   flex-direction: column;
 }
