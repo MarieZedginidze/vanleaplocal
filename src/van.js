@@ -137,6 +137,7 @@ function passingPositions() {
 // Load and Pass a Cupboard Model
 const cupboardPath = "/models/cupboard.glb";
 let cupboard = document.querySelector(".cupboard");
+
 cupboard.addEventListener("click", () => {
   createModel(cupboardPath, passingPositions());
 });
@@ -147,6 +148,13 @@ let sphere = document.querySelector(".sphere");
 
 sphere.addEventListener("click", () => {
   createModel(spherePath, passingPositions());
+});
+
+// Load and Pass a Sphere Model
+const bathSpherePath = "/models/sphere.glb";
+let bathSphere = document.querySelector(".bathSphere");
+bathSphere.addEventListener("click", () => {
+  createModel(bathSpherePath, passingPositions());
 });
 
 let models = [];

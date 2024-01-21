@@ -163,6 +163,7 @@ function suggestCarSize(
     }
   } else {
     tip[0].textContent = "get Ford Transit";
+    suggestedCar = "Ford Transit";
   }
   return suggestedCar;
 }
@@ -170,7 +171,6 @@ function suggestCarSize(
 /*
     Form
 */
-
 form.addEventListener("submit", (event) => {
   // Stop Page from Refreshing when Submitting the Form
   event.preventDefault();
@@ -183,6 +183,8 @@ form.addEventListener("submit", (event) => {
   // Get the Activity/Activities the People User had Selected
   let activities = getActivities();
   if (peopleAmount && activities.length && facilities.length) {
-    suggestCarSize(peopleAmount, tripType, activities, facilities);
+    let car = suggestCarSize(peopleAmount, tripType, activities, facilities);
+    localStorage.setItem("carType", JSON.stringify(car));
+    // window.location.replace("./van.html");
   }
 });
