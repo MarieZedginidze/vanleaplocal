@@ -129,7 +129,7 @@ gltfLoader.load("models/test-car.glb", (gltf) => {
 // Generating and Passing Coordinates for Models
 function passingPositions() {
   let x = 1.5;
-  let y = 0.835;
+  let y = 1.2;
   let z = 1;
   return { x, y, z };
 }
@@ -211,12 +211,11 @@ window.addEventListener("keydown", setShotrCutKey, true);
 /**
  * Display and Close the Info Sidebar
  */
-let lengthInput = document.getElementById("input-length");
-let heightInput = document.getElementById("input-height");
-let widthInput = document.getElementById("input-width");
+let lengthInfo = document.getElementById("info-length");
+let heightInfo = document.getElementById("info-height");
+let widthInfo = document.getElementById("info-width");
 
 let infoSidebar = document.querySelector(".info-sidebar");
-let changeSizesInputs = document.querySelectorAll(".changeSizeInputs");
 
 function displaySidebar(modelName) {
   if (modelName === "Cube") {
@@ -272,40 +271,13 @@ function displayModelSizes() {
   if (modelFromIntersection) {
     modelBoundingBox = new THREE.Box3().setFromObject(modelFromIntersection);
     modelSize = modelBoundingBox.getSize(new THREE.Vector3());
-    lengthInput.value = Math.round((modelSize.x + Number.EPSILON) * 100) / 100;
-    heightInput.value = Math.round((modelSize.y + Number.EPSILON) * 100) / 100;
-    widthInput.value = Math.round((modelSize.z + Number.EPSILON) * 100) / 100;
+    lengthInfo.textContent =
+      "length: " + Math.round((modelSize.x + Number.EPSILON) * 100) / 100;
+    heightInfo.textContent =
+      "height: " + Math.round((modelSize.y + Number.EPSILON) * 100) / 100;
+    widthInfo.textContent =
+      "width: " + Math.round((modelSize.z + Number.EPSILON) * 100) / 100;
   }
-}
-
-/**
- * Change Model Sizes Based on the User's Inputs
- */
-
-function setSizesFromInput(e) {
-  let lengthUserInput;
-  let heightUserInput;
-  let widthUserInput;
-
-  modelBoundingBox = new THREE.Box3().setFromObject(modelFromIntersection);
-  modelSize = modelBoundingBox.getSize(new THREE.Vector3());
-
-  // Display Scale Information as the Input Values
-  if (e.target.id === "input-length" && e.target.value) {
-    // start scale from the length of the element
-    lengthUserInput = e.target.value;
-  }
-  if (e.target.id === "input-height" && e.target.value) {
-    heightUserInput = e.target.value;
-    modelFromIntersection.scale.y = scaleY;
-  }
-  if (e.target.id === "input-width" && e.target.value) {
-    widthUserInput = e.target.value;
-    modelFromIntersection.scale.z = scaleZ;
-  }
-}
-for (const input of changeSizesInputs) {
-  input.addEventListener("input", setSizesFromInput);
 }
 
 /*
@@ -371,7 +343,6 @@ function restrictingMovement() {
   topPlanebbox = new THREE.Box3().setFromObject(topPlane);
   for (const modelGroup of models) {
     let model = modelGroup.model;
-    let car = van.children[0];
     let modelBoundingBox = new THREE.Box3().setFromObject(model);
     let modelSize = modelBoundingBox.getSize(new THREE.Vector3());
 

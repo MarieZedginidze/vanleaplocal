@@ -42,11 +42,11 @@ body {
   position: absolute;
   display: none;
 }
-.changeSizeInputs {
+.displaySizeInfo {
   display: flex;
   flex-direction: column;
 }
-.change-sizes {
+.display-sizes {
   width: 50%;
 }
 img {
