@@ -58,7 +58,7 @@ img {
   margin-left: 11.7em;
 }
 
-.item-list {
+ul li {
   list-style: none;
 }
 
@@ -105,4 +105,13 @@ img {
   overflow-x: hidden;
   overflow-y: auto;
   display: none;
+}
+
+.interaction-buttons ul {
+  position: absolute;
+  left: 50%;
+  top: 1em;
+  width: 20%;
+  display: flex;
+  gap: 2em;
 }

@@ -219,7 +219,7 @@ canvas.addEventListener("mousedown", mousedown);
 canvas.addEventListener("mouseup", mouseup);
 
 /**
- * Track Key Down Events
+ * Track Key Down and Interaction Icons Events
  */
 // Change Transform Control Modes with Shortcut Keys
 function setShotrCutKey(event) {
@@ -235,8 +235,24 @@ function setShotrCutKey(event) {
       break;
   }
 }
-
 window.addEventListener("keydown", setShotrCutKey, true);
+
+let interactionIcons = document.querySelectorAll(".interaction-icons");
+
+function changeTransformMode(e) {
+  if (e.target.id === "move-icon") {
+    transformControls.mode = "translate";
+  }
+  if (e.target.id === "rotate-icon") {
+    transformControls.mode = "rotate";
+  }
+  if (e.target.id === "scale-icon") {
+    transformControls.mode = "scale";
+  }
+}
+for (const interactionIcon of interactionIcons) {
+  interactionIcon.addEventListener("click", changeTransformMode);
+}
 
 /**
  * Display and Close the Info Sidebar
