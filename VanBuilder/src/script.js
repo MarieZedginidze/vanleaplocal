@@ -2,10 +2,6 @@ import * as THREE from "three";
 import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
 import { TransformControls } from "three/addons/controls/TransformControls.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import GUI from "lil-gui";
-
-const gui = new GUI();
-const debugObject = {};
 
 // Canvas
 const canvas = document.querySelector("canvas.webgl");
@@ -67,6 +63,7 @@ renderer.shadowMap.enabled = true;
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.setSize(sizes.width, sizes.height);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+renderer.setClearColor(0xefefef, 1);
 
 /**
  *  Controls
@@ -134,16 +131,23 @@ function passingPositions() {
   return { x, y, z };
 }
 
+/**
+ * Create Models UI
+ */
 // Load and Pass a Cupboard Model
 const cupboardPath = "/models/cupboard.glb";
-debugObject.cupboard = () => {
+let cupboard = document.querySelector(".cupboard");
+cupboard.addEventListener("click", () => {
   createModel(cupboardPath, passingPositions());
-};
+});
+
 // Load and Pass a Sphere Model
 const spherePath = "/models/sphere.glb";
-debugObject.sphere = () => {
+let sphere = document.querySelector(".sphere");
+
+sphere.addEventListener("click", () => {
   createModel(spherePath, passingPositions());
-};
+});
 
 let models = [];
 // Define General Create Model Function
@@ -158,9 +162,35 @@ const createModel = (path, positions) => {
   });
 };
 
-gui.add(debugObject, "cupboard").name("create a cupboard");
-gui.add(debugObject, "sphere").name("create a sphere");
+/**
+ * Toggle Items Menu
+ */
+let kitchenAppliances = document.getElementById("kitchen-appliances");
+let bathroomAppliances = document.getElementById("bathroom-appliances");
+let menuItems = document.querySelectorAll(".item-list");
 
+for (const menuItem of menuItems) {
+  menuItem.addEventListener("click", toggleMenu);
+}
+
+function toggleMenu(e) {
+  if (e.target.id === "kitchen-icon") {
+    if (kitchenAppliances.style.display == "block") {
+      kitchenAppliances.style.display = "none";
+    } else {
+      kitchenAppliances.style.display = "block";
+      bathroomAppliances.style.display = "none";
+    }
+  }
+  if (e.target.id === "bathroom-icon") {
+    if (bathroomAppliances.style.display == "block") {
+      bathroomAppliances.style.display = "none";
+    } else {
+      bathroomAppliances.style.display = "block";
+      kitchenAppliances.style.display = "none";
+    }
+  }
+}
 /**
  *  Track Mouse Events
  */

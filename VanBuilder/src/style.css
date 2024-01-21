@@ -36,10 +36,11 @@ body {
 }
 
 .info-sidebar {
-  width: 20%;
+  position: absolute;
+  margin-left: 85%;
+  width: 15%;
   height: 100%;
   background-color: #fff;
-  position: absolute;
   display: none;
 }
 .displaySizeInfo {
@@ -55,4 +56,53 @@ img {
 }
 #close-btn {
   margin-left: 11.7em;
+}
+
+.item-list {
+  list-style: none;
+}
+
+.models-catalogue {
+  position: absolute;
+  margin-left: 0%;
+  width: 3%;
+  height: 100%;
+  background-color: #fff;
+}
+
+.models-catalogue ul {
+  padding-top: 0.5em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+  text-decoration: none;
+}
+
+#kitchen-appliances {
+  position: absolute;
+  left: 3%;
+  width: 15%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #fff;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: none;
+}
+#bathroom-appliances {
+  position: absolute;
+  left: 3%;
+  width: 15%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background-color: #fff;
+  height: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  display: none;
 }
