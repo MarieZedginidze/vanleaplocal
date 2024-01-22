@@ -105,7 +105,7 @@ let sidePlanebbox;
 let topPlanebbox;
 
 // Load a van
-gltfLoader.load("models/test-car.glb", (gltf) => {
+gltfLoader.load("/models/test-car.glb", (gltf) => {
   van = gltf.scene;
   backPlane = van.getObjectByName("backPlane");
   floorPlane = van.getObjectByName("floorPlane");
