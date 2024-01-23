@@ -92,36 +92,60 @@ scene.add(transformControls);
 const gltfLoader = new GLTFLoader();
 
 let van;
-let backPlane;
-let floorPlane;
-let truckPlane;
-let sidePlane;
-let topPlane;
+// let backPlane;
+// let floorPlane;
+// let truckPlane;
+// let sidePlane;
+// let topPlane;
 
-let backPlanebbox;
-let floorPlanebbox;
-let truckPlanebbox;
-let sidePlanebbox;
-let topPlanebbox;
-
+// let backPlanebbox;
+// let floorPlanebbox;
+// let truckPlanebbox;
+// let sidePlanebbox;
+// let topPlanebbox;
+let vanType;
 // Load a van
-gltfLoader.load("/models/test-car.glb", (gltf) => {
-  van = gltf.scene;
-  backPlane = van.getObjectByName("backPlane");
-  floorPlane = van.getObjectByName("floorPlane");
-  truckPlane = van.getObjectByName("truckPlane");
-  sidePlane = van.getObjectByName("sidePlane");
-  topPlane = van.getObjectByName("topPlane");
+// Load Van Depending on the Questionary Results
+let retrievedVanType = JSON.parse(localStorage.getItem("carType"));
+if (retrievedVanType === "Ford Transit") {
+  vanType = "Ford Transit";
 
-  backPlane.visible = false;
-  floorPlane.visible = false;
-  truckPlane.visible = false;
-  sidePlane.visible = false;
-  topPlane.visible = false;
+  gltfLoader.load("/models/test-car2.glb", (gltf) => {
+    van = gltf.scene;
+    // backPlane = van.getObjectByName("backPlane");
+    // floorPlane = van.getObjectByName("floorPlane");
+    // truckPlane = van.getObjectByName("truckPlane");
+    // sidePlane = van.getObjectByName("sidePlane");
+    // topPlane = van.getObjectByName("topPlane");
 
-  scene.position.set(0, 0, 0);
-  scene.add(van);
-});
+    // backPlane.visible = false;
+    // floorPlane.visible = false;
+    // truckPlane.visible = false;
+    // sidePlane.visible = false;
+    // topPlane.visible = false;
+    scene.position.set(0, 0, 0);
+    scene.add(van);
+  });
+}
+if (retrievedVanType === "Mercedes Benz") {
+  gltfLoader.load("/models/test-car.glb", (gltf) => {
+    vanType = "Mercedes Benz";
+    van = gltf.scene;
+    // backPlane = van.getObjectByName("backPlane");
+    // floorPlane = van.getObjectByName("floorPlane");
+    // truckPlane = van.getObjectByName("truckPlane");
+    // sidePlane = van.getObjectByName("sidePlane");
+    // topPlane = van.getObjectByName("topPlane");
+
+    // backPlane.visible = false;
+    // floorPlane.visible = false;
+    // truckPlane.visible = false;
+    // sidePlane.visible = false;
+    // topPlane.visible = false;
+    scene.position.set(0, 0, 0);
+    scene.add(van);
+  });
+}
 
 // Generating and Passing Coordinates for Models
 function passingPositions() {
@@ -390,40 +414,39 @@ function attachControls(pointer) {
  *
  */
 function restrictingMovement() {
-  backPlanebbox = new THREE.Box3().setFromObject(backPlane);
-  floorPlanebbox = new THREE.Box3().setFromObject(floorPlane);
-  truckPlanebbox = new THREE.Box3().setFromObject(truckPlane);
-  sidePlanebbox = new THREE.Box3().setFromObject(sidePlane);
-  topPlanebbox = new THREE.Box3().setFromObject(topPlane);
-  for (const modelGroup of models) {
-    let model = modelGroup.model;
-    let modelBoundingBox = new THREE.Box3().setFromObject(model);
-    let modelSize = modelBoundingBox.getSize(new THREE.Vector3());
-
-    // restricting movement on the x axis with black plane
-    if (transformControls.mode === "translate") {
-      if (modelBoundingBox.max.x > backPlanebbox.max.x) {
-        model.position.x = backPlane.position.x - modelSize.x / 2;
-      }
-      // restricting movement on the y axis with top plane
-      if (modelBoundingBox.max.y > topPlanebbox.max.y) {
-        model.position.y = topPlane.position.y - modelSize.y / 2;
-      }
-      // restricting movement on the z axis with side plane
-      if (modelBoundingBox.min.z < sidePlanebbox.min.z) {
-        -(model.position.z = sidePlane.position.z + modelSize.z / 2);
-      }
-      // restricting movement on the x axis with truck plane
-      if (modelBoundingBox.min.x < truckPlanebbox.min.x) {
-        -(model.position.x = truckPlane.position.x + modelSize.x / 2);
-      }
-      // restricting movement on the y axis with floor plane
-      if (modelBoundingBox.min.y < floorPlanebbox.min.y) {
-        model.position.y = floorPlane.position.y + modelSize.y / 2;
-      }
-    }
-    displayModelSizes();
-  }
+  // backPlanebbox = new THREE.Box3().setFromObject(backPlane);
+  // floorPlanebbox = new THREE.Box3().setFromObject(floorPlane);
+  // truckPlanebbox = new THREE.Box3().setFromObject(truckPlane);
+  // sidePlanebbox = new THREE.Box3().setFromObject(sidePlane);
+  // topPlanebbox = new THREE.Box3().setFromObject(topPlane);
+  // for (const modelGroup of models) {
+  //   let model = modelGroup.model;
+  //   let modelBoundingBox = new THREE.Box3().setFromObject(model);
+  //   let modelSize = modelBoundingBox.getSize(new THREE.Vector3());
+  //   // restricting movement on the x axis with black plane
+  //   if (transformControls.mode === "translate") {
+  //     if (modelBoundingBox.max.x > backPlanebbox.max.x) {
+  //       model.position.x = backPlane.position.x - modelSize.x / 2;
+  //     }
+  //     // restricting movement on the y axis with top plane
+  //     if (modelBoundingBox.max.y > topPlanebbox.max.y) {
+  //       model.position.y = topPlane.position.y - modelSize.y / 2;
+  //     }
+  //     // restricting movement on the z axis with side plane
+  //     if (modelBoundingBox.min.z < sidePlanebbox.min.z) {
+  //       -(model.position.z = sidePlane.position.z + modelSize.z / 2);
+  //     }
+  //     // restricting movement on the x axis with truck plane
+  //     if (modelBoundingBox.min.x < truckPlanebbox.min.x) {
+  //       -(model.position.x = truckPlane.position.x + modelSize.x / 2);
+  //     }
+  //     // restricting movement on the y axis with floor plane
+  //     if (modelBoundingBox.min.y < floorPlanebbox.min.y) {
+  //       model.position.y = floorPlane.position.y + modelSize.y / 2;
+  //     }
+  //   }
+  //   displayModelSizes();
+  // }
 }
 
 transformControls.addEventListener("change", restrictingMovement);
@@ -497,6 +520,7 @@ window.addEventListener("load", loadScene);
 // Clear the Localstorage and the Models in the Scene
 function resetScene() {
   localStorage.clear();
+  localStorage.setItem("carType", JSON.stringify(vanType));
   location.reload();
 }
 let resetBtn = document.getElementById("reset-btn");

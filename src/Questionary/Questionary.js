@@ -3,13 +3,11 @@
 */
 // Questions
 let questionOne = document.querySelector(".question-one");
-let questionTwo = document.querySelector(".question-two");
 let questionThree = document.querySelector(".question-three");
 let questionFourth = document.querySelector(".question-four");
 
 // Radio Buttons
 let radioBtnsOne = questionOne.querySelectorAll("input[type='radio']");
-let radioBtnsTwo = questionTwo.querySelectorAll("input[type='radio']");
 let radioBtnsThree = questionThree.querySelectorAll("input[type='radio']");
 // Check Boxes
 let checkBoxes = questionFourth.querySelectorAll('input[type="checkbox"]');
@@ -17,12 +15,20 @@ let checkBoxes = questionFourth.querySelectorAll('input[type="checkbox"]');
 // Form Element
 const form = document.querySelector("form");
 
-// Tips Section
-const tip = document.getElementsByClassName("tips");
-
 let form_data = new FormData(form);
 let errorMsgSections = document.querySelectorAll(".chk_option_error");
 
+// Get the Van Builder Link and Van Type from the Localstorage
+let vanBuilderLink = document.getElementById("vanBuilderLink");
+let retrievedVanType = localStorage.getItem("carType");
+
+vanBuilderLink.addEventListener("click", () => {
+  if (retrievedVanType === "undefined" || !retrievedVanType) {
+    window.location.replace("/Choose-car/Choose-car.html");
+  } else {
+    window.location.replace("/Van-builder/Van.html");
+  }
+});
 /* 
     Check for Required Answers
  */
@@ -67,21 +73,6 @@ function getPeopleAmount() {
     hideError("question-one");
   }
   return peopleAmount;
-}
-
-/*
-    Second Question: People Amount
-*/
-function getTripType() {
-  let tripType;
-  // Get Third Question's Radio Buttons, Loop throught them
-  // and Assign the Checked Buttons Value to the tripType Variable
-  for (var i = 0; i < radioBtnsTwo.length; i++) {
-    if (radioBtnsTwo[i].checked) {
-      tripType = radioBtnsTwo[i].value;
-    }
-  }
-  return tripType;
 }
 
 /*
@@ -133,12 +124,7 @@ function getFacilities() {
 */
 
 // Suggest user/s to  Ford Transit or Mercedez Sprinter
-function suggestCarSize(
-  peopleAmount,
-  tripType,
-  activitiesArray,
-  facilitiesArray
-) {
+function suggestCarSize(peopleAmount, activitiesArray, facilitiesArray) {
   let suggestedCar;
 
   if (peopleAmount === "3+") {
@@ -155,14 +141,7 @@ function suggestCarSize(
     }
   }
   if (suggestedCar === "Mercedes Benz") {
-    tip[0].textContent = "get Mercedes Benz";
-  } else if (tripType === "1 month+ / live in van full time") {
-    {
-      tip[0].textContent =
-        "If you want to live Full-Time maybe, you should consider buying the big Van Once";
-    }
   } else {
-    tip[0].textContent = "get Ford Transit";
     suggestedCar = "Ford Transit";
   }
   return suggestedCar;
@@ -176,15 +155,13 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
   // Get the Number of the People User had Selected
   let peopleAmount = getPeopleAmount();
-  // Get the Trip Type
-  let tripType = getTripType();
   // Get the Facility/Facilities the People User had Selected
   let facilities = getFacilities();
   // Get the Activity/Activities the People User had Selected
   let activities = getActivities();
   if (peopleAmount && activities.length && facilities.length) {
-    let car = suggestCarSize(peopleAmount, tripType, activities, facilities);
+    let car = suggestCarSize(peopleAmount, activities, facilities);
     localStorage.setItem("carType", JSON.stringify(car));
-    // window.location.replace("./van.html");
+    window.location.replace("/Van-builder/Van.html");
   }
 });
