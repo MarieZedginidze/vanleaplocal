@@ -147,6 +147,40 @@ function suggestCarSize(peopleAmount, activitiesArray, facilitiesArray) {
   return suggestedCar;
 }
 
+// Display Each Question at a time
+let nextBtns = document.querySelectorAll(".next-buttons");
+let firstBtn = nextBtns[0];
+let secondBtn = nextBtns[1];
+let questionsChildren = document.querySelector(".questions").children;
+let submitBtn = document.querySelector(".submit-button");
+
+function displaySecondQuestion(event) {
+  event.preventDefault();
+
+  let peopleAmount = getPeopleAmount();
+
+  if (peopleAmount) {
+    questionOne.style.display = "none";
+    questionThree.style.display = "block";
+    nextBtns[1].style.display = "block";
+  }
+}
+
+function displayThirdQuestion(event) {
+  event.preventDefault();
+
+  let activities = getActivities();
+
+  if (activities.length) {
+    questionThree.style.display = "none";
+    questionFourth.style.display = "block";
+    submitBtn.style.display = "block";
+  }
+}
+
+firstBtn.addEventListener("click", displaySecondQuestion);
+secondBtn.addEventListener("click", displayThirdQuestion);
+
 /*
     Form
 */
@@ -155,6 +189,7 @@ form.addEventListener("submit", (event) => {
   event.preventDefault();
   // Get the Number of the People User had Selected
   let peopleAmount = getPeopleAmount();
+
   // Get the Facility/Facilities the People User had Selected
   let facilities = getFacilities();
   // Get the Activity/Activities the People User had Selected

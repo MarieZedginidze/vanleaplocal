@@ -4,10 +4,17 @@ body {
   margin: 0;
   background-color: royalblue;
   color: white;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 form {
   padding: 1em;
+  background-color: #c7a5a5;
+  width: 50%;
+  height: 50%;
 }
 .tips {
   margin-left: 1em;
@@ -44,4 +51,16 @@ form {
 .chk_option_error {
   visibility: hidden;
   color: red;
+}
+.question-three {
+  display: none;
+}
+.question-four {
+  display: none;
+}
+.submit-button {
+  display: none;
+}
+#next-button-two {
+  display: none;
 }
