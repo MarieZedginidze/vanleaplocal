@@ -80,7 +80,7 @@ controls.maxDistance = 20;
 controls.minPolarAngle = 0; // radians
 controls.maxPolarAngle = 1.3; // radians
 
-// controls.enabled = false;
+//controls.enabled = false;
 
 // Transform Controls
 const transformControls = new TransformControls(camera, renderer.domElement);
@@ -110,7 +110,7 @@ let retrievedVanType = JSON.parse(localStorage.getItem("carType"));
 if (retrievedVanType === "Ford Transit") {
   vanType = "Ford Transit";
 
-  gltfLoader.load("/models/test-car2.glb", (gltf) => {
+  gltfLoader.load("/models/l2h2.glb", (gltf) => {
     van = gltf.scene;
     // backPlane = van.getObjectByName("backPlane");
     // floorPlane = van.getObjectByName("floorPlane");
@@ -123,12 +123,12 @@ if (retrievedVanType === "Ford Transit") {
     // truckPlane.visible = false;
     // sidePlane.visible = false;
     // topPlane.visible = false;
-    scene.position.set(0, 0, 0);
+    scene.position.set(0, -0.3, 0);
     scene.add(van);
   });
 }
 if (retrievedVanType === "Mercedes Benz") {
-  gltfLoader.load("/models/test-car.glb", (gltf) => {
+  gltfLoader.load("/models/l3h3.glb", (gltf) => {
     vanType = "Mercedes Benz";
     van = gltf.scene;
     // backPlane = van.getObjectByName("backPlane");
